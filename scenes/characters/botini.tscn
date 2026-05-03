@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://cfxvxpnwen2eq"]
+
+[ext_resource type="Script" uid="uid://dog07svqs2csb" path="res://scenes/characters/botini.gd" id="1_5mest"]
+[ext_resource type="Texture2D" uid="uid://bxg5056857nvd" path="res://assets/botini.png" id="2_ktxuw"]
+[ext_resource type="Script" uid="uid://c3hchdb57bq4w" path="res://scripts/components/health.gd" id="3_yetl1"]
+[ext_resource type="Script" uid="uid://eomwl72h5mdg" path="res://scripts/components/gun_attack.gd" id="4_yetl1"]
+[ext_resource type="PackedScene" uid="uid://b8mmf48321hp" path="res://scenes/projectiles/bullet.tscn" id="5_2j76h"]
+[ext_resource type="Script" uid="uid://bl7vivnd2isdp" path="res://scripts/components/dash.gd" id="5_foj6h"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_onrkg"]
+radius = 5.0
+height = 16.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hqtel"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:velocity")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:facing_right")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath(".:is_alive")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:spawn_position")
+properties/4/spawn = true
+properties/4/replication_mode = 0
+
+[node name="Botini" type="CharacterBody2D" unique_id=1703312197]
+script = ExtResource("1_5mest")
+team = "botinis"
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=837012661]
+texture_filter = 1
+texture = ExtResource("2_ktxuw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=751701469]
+shape = SubResource("CapsuleShape2D_onrkg")
+
+[node name="Health" type="Node" parent="." unique_id=1032959831]
+script = ExtResource("3_yetl1")
+
+[node name="Attack" type="Node" parent="." unique_id=1898158667]
+script = ExtResource("4_yetl1")
+projectile_scene = ExtResource("5_2j76h")
+projectile_speed = 360.0
+knockback_force = 320.0
+cooldown = 0.45
+damage = 5
+
+[node name="Dash" type="Node" parent="." unique_id=761573989]
+script = ExtResource("5_foj6h")
+cooldown = 0.45
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1040714569]
+replication_config = SubResource("SceneReplicationConfig_hqtel")

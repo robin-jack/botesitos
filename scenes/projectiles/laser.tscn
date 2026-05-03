@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://by5n3jobbje87"]
+
+[ext_resource type="Script" uid="uid://bvua41swm6io6" path="res://scenes/projectiles/laser.gd" id="1_fn5yt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6vqwg"]
+size = Vector2(1, 10)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_oes6l"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 0
+
+[node name="Laser" type="Area2D" unique_id=77399647]
+script = ExtResource("1_fn5yt")
+
+[node name="RectTop" type="ColorRect" parent="." unique_id=642370736]
+custom_minimum_size = Vector2(2, 10)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -1.0
+offset_top = -10.0
+offset_right = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.91015625, 0.61151123, 1)
+
+[node name="RectBottom" type="ColorRect" parent="." unique_id=471367530]
+custom_minimum_size = Vector2(2, 10)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -1.0
+offset_right = 1.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0.91015625, 0.61151123, 1)
+
+[node name="ShapeTop" type="CollisionShape2D" parent="." unique_id=1583646135]
+position = Vector2(0, -5)
+shape = SubResource("RectangleShape2D_6vqwg")
+
+[node name="ShapeBottom" type="CollisionShape2D" parent="." unique_id=1127624468]
+position = Vector2(0, 5)
+shape = SubResource("RectangleShape2D_6vqwg")
+
+[node name="RayTop" type="RayCast2D" parent="." unique_id=1215660496]
+position = Vector2(0, -5)
+
+[node name="RayBottom" type="RayCast2D" parent="." unique_id=1592179365]
+position = Vector2(0, 5)
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=284945299]
+replication_config = SubResource("SceneReplicationConfig_oes6l")

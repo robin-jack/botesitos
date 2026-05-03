@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://do76lbflmgacf"]
+
+[ext_resource type="Script" uid="uid://beyc04tgufwp5" path="res://scenes/characters/player.gd" id="1_onrkg"]
+[ext_resource type="Texture2D" uid="uid://bxg5056857nvd" path="res://assets/botini.png" id="2_i3pqv"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_onrkg"]
+radius = 5.0
+height = 16.0
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hqtel"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:sync_facing_dir")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+
+[node name="Player" type="CharacterBody2D" unique_id=1703312197]
+script = ExtResource("1_onrkg")
+
+[node name="Visuals" type="Sprite2D" parent="." unique_id=837012661]
+texture_filter = 1
+texture = ExtResource("2_i3pqv")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=751701469]
+shape = SubResource("CapsuleShape2D_onrkg")
+
+[node name="DashTimer" type="Timer" parent="." unique_id=1473163743]
+one_shot = true
+
+[node name="AttackTimer" type="Timer" parent="." unique_id=725778825]
+one_shot = true
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1040714569]
+replication_config = SubResource("SceneReplicationConfig_hqtel")

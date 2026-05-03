@@ -1,0 +1,115 @@
+[gd_scene format=3 uid="uid://lobby00001"]
+
+[ext_resource type="Script" uid="uid://c0h31alsteg5d" path="res://scenes/lobby/lobby_ui.gd" id="1_lobbyui"]
+
+[node name="LobbyUI" type="Control" unique_id=1401318143]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lobbyui")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1624816675]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.05, 0.1, 1)
+
+[node name="Center" type="CenterContainer" parent="." unique_id=807982864]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Center" unique_id=1040538385]
+custom_minimum_size = Vector2(320, 0)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center/Panel" unique_id=391425042]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Center/Panel/VBox" unique_id=804533138]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "BOTESITOS"
+horizontal_alignment = 1
+
+[node name="Separator0" type="HSeparator" parent="Center/Panel/VBox" unique_id=445195249]
+layout_mode = 2
+
+[node name="NameRow" type="HBoxContainer" parent="Center/Panel/VBox" unique_id=1413350479]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="Center/Panel/VBox/NameRow" unique_id=1612164498]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "Name:"
+vertical_alignment = 1
+
+[node name="NameInput" type="LineEdit" parent="Center/Panel/VBox/NameRow" unique_id=855153392]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Enter your name"
+max_length = 16
+
+[node name="HostRow" type="HBoxContainer" parent="Center/Panel/VBox" unique_id=1168034995]
+layout_mode = 2
+
+[node name="HostButton" type="Button" parent="Center/Panel/VBox/HostRow" unique_id=1113677493]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Host Game"
+
+[node name="JoinRow" type="HBoxContainer" parent="Center/Panel/VBox" unique_id=2065670130]
+layout_mode = 2
+
+[node name="IPInput" type="LineEdit" parent="Center/Panel/VBox/JoinRow" unique_id=321151451]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Server IP (default: 127.0.0.1)"
+
+[node name="JoinButton" type="Button" parent="Center/Panel/VBox/JoinRow" unique_id=581241930]
+layout_mode = 2
+text = "Join"
+
+[node name="Separator1" type="HSeparator" parent="Center/Panel/VBox" unique_id=894416000]
+layout_mode = 2
+
+[node name="PlayersHeader" type="Label" parent="Center/Panel/VBox" unique_id=402685980]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 10
+text = "Players in lobby:"
+
+[node name="PlayerList" type="VBoxContainer" parent="Center/Panel/VBox" unique_id=844753530]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+
+[node name="Separator2" type="HSeparator" parent="Center/Panel/VBox" unique_id=1008388685]
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="Center/Panel/VBox" unique_id=428679659]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 10
+text = "Enter a name and host or join a game."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Separator3" type="HSeparator" parent="Center/Panel/VBox" unique_id=477341532]
+layout_mode = 2
+
+[node name="StartButton" type="Button" parent="Center/Panel/VBox" unique_id=335729133]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 1, 0.4, 1)
+text = "START GAME  (host only)"
