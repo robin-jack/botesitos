@@ -6,6 +6,7 @@ extends Attack
 
 ## Path to the projectile scene
 @export var projectile_scene: PackedScene
+@export_enum("projectile", "laser") var projectile_type: String = "projectile"
 @export var projectile_speed: float = 340.0
 @export var knockback_force: float = 220.0
 
@@ -27,14 +28,10 @@ func _perform_attack(direction: Vector2) -> void:
 
 	# Build attack data for the server spawn request
 	var attack_data := {
-		"type": "projectile",
-		"position": spawn_pos,
+		"type": projectile_type,
 		"direction": direction,
-		"speed": projectile_speed,
-		"damage": damage,
-		"knockback": knockback_force,
-		"owner_id": owner_character.get_multiplayer_authority(),
-		"team": owner_character.get("team"),  # "players" or "boss"
+		# The server computes damage, speed, team, and spawn position from trusted state.
+		"position_hint": spawn_pos,
 	}
 	attack_executed.emit(attack_data)
 

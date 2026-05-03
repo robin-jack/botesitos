@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bwwyclvs4qc2n"]
 
-[ext_resource type="Script" uid="uid://blclk2bqfqh3k" path="res://scenes/game/game.gd" id="1_80nbo"]
+[ext_resource type="Script" path="res://scenes/game/game.gd" id="1_80nbo"]
 [ext_resource type="Texture2D" uid="uid://dnp3auttimvvn" path="res://assets/battleground.png" id="2_e2o6t"]
 
 [node name="Game" type="Node2D" unique_id=390760802]

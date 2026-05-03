@@ -47,8 +47,8 @@ func _on_body_entered(body: Node) -> void:
 
 func _apply_hit(target: Node) -> void:
 	if not multiplayer.is_server(): return
-	if target.has_method("receive_damage"):
-		target.receive_damage.rpc(damage, direction, knockback_force)
+	if target.has_method("apply_server_damage"):
+		target.apply_server_damage(damage, direction, knockback_force, owner_peer_id)
 	_despawn()
 
 func _despawn() -> void:
