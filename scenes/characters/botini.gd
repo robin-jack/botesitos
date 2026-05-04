@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 const EXPLOSION_SCENE = preload("uid://2f8twwxlgbxf")
-const GRAVITY := 980.0
+const GRAVITY := 1280.0
 const COYOTE_TIME_MAX = 0.12
 
 var facing_right: bool = true:
@@ -15,9 +15,9 @@ var is_alive: bool = true
 var peer_id: int = 1
 var player_name: String = "Player"
 
-var move_speed: float = 180.0
-var jump_force: float = -310.0
-var gravity_scale: float = 1.0
+@export var move_speed: float = 180.0
+@export var jump_force: float = -448.0
+@export var gravity_scale: float = 1.0
 
 var _jump_req: bool = false
 var _dash_req: bool = false
@@ -31,9 +31,9 @@ var coyote_timer: float = 0.0
 @onready var dash: Dash = $Dash
 
 func _enter_tree() -> void:
-	var pid_str := name.trim_prefix("Player_")
-	if pid_str.is_valid_int():
-		peer_id = pid_str.to_int()
+	var pid := _extract_peer_id_from_name(name)
+	if pid > 0:
+		peer_id = pid
 		set_multiplayer_authority(peer_id)
 
 func _ready() -> void:
@@ -75,7 +75,7 @@ func _handle_jump() -> void:
 func _handle_dash() -> void:
 	if _dash_req:
 		var dir := Vector2(_input_dir if _input_dir != 0.0 else (1.0 if facing_right else -1.0), 0.0)
-		dash.try_dash(dir)
+		dash.try_dash(dir, is_on_floor(), velocity.y)
 	_dash_req = false
 	if dash.is_dashing:
 		velocity = dash.apply_dash_velocity(velocity)
@@ -105,29 +105,26 @@ func apply_server_damage(amount: int, direction: Vector2, knockback: float, _sou
 	health.take_damage(amount)
 	apply_damage_feedback.rpc(direction, knockback, is_alive)
 
-@rpc("authority", "call_local", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func apply_damage_feedback(hit_direction: Vector2, knockback: float, alive_after_hit: bool) -> void:
-	var sender := multiplayer.get_remote_sender_id()
-	if sender != 0 and sender != 1:
+	if not _is_server_rpc_sender():
 		return
 	if is_multiplayer_authority() and alive_after_hit:
 		velocity += hit_direction.normalized() * knockback
 	_play_damage_effects(hit_direction)
 
-@rpc("authority", "call_local", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func set_alive(alive: bool) -> void:
-	var sender := multiplayer.get_remote_sender_id()
-	if sender != 0 and sender != 1:
+	if not _is_server_rpc_sender():
 		return
 	is_alive = alive
 	visible = alive
 	if not alive:
 		velocity = Vector2.ZERO
 
-@rpc("authority", "call_local", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func respawn(pos: Vector2) -> void:
-	var sender := multiplayer.get_remote_sender_id()
-	if sender != 0 and sender != 1:
+	if not _is_server_rpc_sender():
 		return
 	global_position = pos
 	velocity = Vector2.ZERO
@@ -135,6 +132,22 @@ func respawn(pos: Vector2) -> void:
 	visible = true
 	health.reset()
 	attack.reset()
+
+@rpc("any_peer", "call_local", "reliable")
+func prepare_for_despawn() -> void:
+	if not _is_server_rpc_sender():
+		return
+	is_alive = false
+	visible = false
+	velocity = Vector2.ZERO
+	set_physics_process(false)
+
+	var collision := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collision:
+		collision.disabled = true
+	var sync := get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
+	if sync:
+		sync.public_visibility = false
 
 func _play_damage_effects(hit_direction: Vector2) -> void:
 	var explosion = EXPLOSION_SCENE.instantiate()
@@ -163,3 +176,16 @@ func _on_attack_executed(data: Dictionary) -> void:
 		game._spawn_projectile_from_owner(self, data)
 	else:
 		game.request_spawn_projectile.rpc_id(1, data)
+
+func _is_server_rpc_sender() -> bool:
+	var sender := multiplayer.get_remote_sender_id()
+	return sender == 0 or sender == 1
+
+func _extract_peer_id_from_name(node_name: String) -> int:
+	if node_name.begins_with("Player_"):
+		var parts := node_name.split("_")
+		if not parts.is_empty():
+			var maybe_id := parts[parts.size() - 1]
+			if maybe_id.is_valid_int():
+				return maybe_id.to_int()
+	return -1

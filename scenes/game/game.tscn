@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bwwyclvs4qc2n"]
 
-[ext_resource type="Script" path="res://scenes/game/game.gd" id="1_80nbo"]
+[ext_resource type="Script" uid="uid://blclk2bqfqh3k" path="res://scenes/game/game.gd" id="1_80nbo"]
 [ext_resource type="Texture2D" uid="uid://dnp3auttimvvn" path="res://assets/battleground.png" id="2_e2o6t"]
 
 [node name="Game" type="Node2D" unique_id=390760802]
@@ -80,6 +80,27 @@ position = Vector2(908, 202)
 
 [node name="Spawn3" type="Marker2D" parent="SpawnPoints" unique_id=1464727871]
 position = Vector2(44, 202)
+
+[node name="Spawn4" type="Marker2D" parent="SpawnPoints" unique_id=1225017418]
+position = Vector2(925, 374)
+
+[node name="Spawn5" type="Marker2D" parent="SpawnPoints" unique_id=1355006129]
+position = Vector2(30, 385)
+
+[node name="Spawn6" type="Marker2D" parent="SpawnPoints" unique_id=908914215]
+position = Vector2(702, 403)
+
+[node name="Spawn7" type="Marker2D" parent="SpawnPoints" unique_id=148028957]
+position = Vector2(480, 202)
+
+[node name="Spawn8" type="Marker2D" parent="SpawnPoints" unique_id=204689335]
+position = Vector2(266, 295)
+
+[node name="Spawn9" type="Marker2D" parent="SpawnPoints" unique_id=809724400]
+position = Vector2(266, 403)
+
+[node name="Spawn10" type="Marker2D" parent="SpawnPoints" unique_id=688958393]
+position = Vector2(702, 295)
 
 [node name="Players" type="Node2D" parent="." unique_id=556750820]
 

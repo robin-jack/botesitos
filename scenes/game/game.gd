@@ -21,6 +21,7 @@ var _round_end_timer: float = 0.0
 var _last_countdown_sent: int = -1
 var _used_boss_peers: Array = []
 var _last_server_shot_msec: Dictionary = {}
+var _round_spawn_serial: int = 0
 
 var players: Dictionary = {} # peer_id -> character node
 var boss_peer_id: int = -1
@@ -105,12 +106,14 @@ func _finish_round_transition() -> void:
 
 func _start_round() -> void:
 	_promote_spectators_for_next_round()
+	_enforce_spawn_capacity()
 	if active_peer_ids.size() < 2:
 		_phase = Phase.WAITING
 		_countdown_label.text = "Waiting for players"
 		_countdown_label.visible = true
 		return
 	_countdown_label.visible = false
+	_round_spawn_serial += 1
 	_current_round += 1
 	_assign_teams()
 	_spawn_players()
@@ -130,10 +133,11 @@ func _promote_spectators_for_next_round() -> void:
 
 func _spawn_players() -> void:
 	players.clear()
-	var botini_idx := 0
+	var spawn_assignments := _build_spawn_assignments(active_peer_ids)
 	for pid: int in active_peer_ids:
+		if not spawn_assignments.has(pid):
+			continue
 		var is_boss := (pid == boss_peer_id)
-		var spawn_pos := _pick_spawn_position(botini_idx, is_boss)
 		var lobby_info = Lobby.players.get(pid, {})
 		var player_name := str(lobby_info.get("name", "Player %d" % pid))
 		var spawn_data := {
@@ -141,7 +145,8 @@ func _spawn_players() -> void:
 			"team": "boss" if is_boss else "botinis",
 			"peer_id": pid,
 			"name": player_name,
-			"spawn_position": spawn_pos,
+			"spawn_position": spawn_assignments[pid],
+			"spawn_serial": _round_spawn_serial,
 		}
 		var player := _player_spawner.spawn(spawn_data) as CharacterBody2D
 		if player:
@@ -150,15 +155,14 @@ func _spawn_players() -> void:
 			if hc:
 				var dead_pid := pid
 				hc.died.connect(func(): _on_player_died(dead_pid))
-		if not is_boss:
-			botini_idx += 1
 
 func _spawn_player_from_data(data: Dictionary) -> Node:
 	var scene_key := str(data.get("scene", "botini"))
 	var scene := BOSS_SCENE if scene_key == "boss" else BOTINI_SCENE
 	var player := scene.instantiate() as CharacterBody2D
 	var pid := int(data.get("peer_id", 1))
-	player.name = "Player_%d" % pid
+	var spawn_serial := int(data.get("spawn_serial", 0))
+	player.name = "Player_%d_%d" % [spawn_serial, pid]
 	player.team = str(data.get("team", "botinis"))
 	player.peer_id = pid
 	player.player_name = str(data.get("name", "Player"))
@@ -166,14 +170,30 @@ func _spawn_player_from_data(data: Dictionary) -> Node:
 	player.velocity = Vector2.ZERO
 	return player
 
-func _pick_spawn_position(botini_idx: int, is_boss: bool) -> Vector2:
+func _build_spawn_assignments(peer_ids: Array) -> Dictionary:
+	var assignments := {}
 	if spawn_points.is_empty():
-		return Vector2.ZERO
-	if is_boss:
-		var boss_spawn = spawn_points[randi() % spawn_points.size()]
-		return boss_spawn.global_position
-	var bot_spawn = spawn_points[botini_idx % spawn_points.size()]
-	return bot_spawn.global_position
+		return assignments
+	var shuffled_spawns := spawn_points.duplicate()
+	shuffled_spawns.shuffle()
+	var count: int = min(peer_ids.size(), shuffled_spawns.size())
+
+	for i in range(count):
+		var pid := int(peer_ids[i])
+		var marker := shuffled_spawns[i] as Node2D
+		assignments[pid] = marker.global_position
+	return assignments
+
+func _enforce_spawn_capacity() -> void:
+	var capacity := spawn_points.size()
+	if capacity <= 0:
+		return
+	while active_peer_ids.size() > capacity:
+		var overflow_id := int(active_peer_ids.pop_back())
+		if not spectator_peer_ids.has(overflow_id):
+			spectator_peer_ids.append(overflow_id)
+	if not spectator_peer_ids.is_empty():
+		_rpc_set_spectators.rpc(spectator_peer_ids)
 
 func _assign_teams() -> void:
 	var all_ids: Array = active_peer_ids.duplicate()
@@ -210,6 +230,12 @@ func _award_round(winner: String) -> void:
 	_round_end_timer = round_end_delay
 
 func _cleanup_round() -> void:
+	for pid in players.keys():
+		var character := players[pid] as Node
+		if character and character.has_method("prepare_for_despawn"):
+			character.prepare_for_despawn.rpc()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 	for c in players_container.get_children():
 		c.queue_free()
 	for p in projectiles_container.get_children():
@@ -270,8 +296,8 @@ func _spawn_projectile_from_owner(shooter: CharacterBody2D, request_data: Dictio
 
 	var shooter_peer := int(shooter.peer_id)
 	var now_msec := Time.get_ticks_msec()
-	var attack_component := shooter.get_node_or_null("Attack") as GunAttack
-	if attack_component:
+	var attack_component := shooter.get_node_or_null("Attack") as Attack
+	if attack_component is GunAttack:
 		var cooldown_msec := int(attack_component.cooldown * 1000.0)
 		var next_allowed_msec := int(_last_server_shot_msec.get(shooter_peer, 0))
 		if now_msec < next_allowed_msec:
@@ -284,29 +310,55 @@ func _spawn_projectile_from_owner(shooter: CharacterBody2D, request_data: Dictio
 		dir = Vector2(1.0 if shooter.facing_right else -1.0, 0.0)
 	dir = dir.normalized()
 
+	if attack_component is BurstAttack:
+		var burst_attack := attack_component as BurstAttack
+		if not burst_attack.server_consume_one_shot(now_msec):
+			return
+
+	var projectile_config := _read_projectile_config(attack_component)
+	if not is_instance_valid(shooter):
+		return
+	if shooter.get_parent() == null:
+		return
+	if shooter.is_alive != true:
+		return
+	var projectile_data := _build_projectile_data(shooter, dir, projectile_config)
+	spawn_projectile(projectile_data)
+
+func _build_projectile_data(shooter: CharacterBody2D, dir: Vector2, projectile_config: Dictionary) -> Dictionary:
+	var spawn_pos := shooter.global_position + dir * 8.0
+	return {
+		"type": str(projectile_config.get("type", "projectile")),
+		"position": spawn_pos,
+		"direction": dir,
+		"speed": float(projectile_config.get("speed", 340.0)),
+		"damage": int(projectile_config.get("damage", 5)),
+		"knockback": float(projectile_config.get("knockback", 220.0)),
+		"owner_id": int(shooter.peer_id),
+		"team": str(shooter.team),
+	}
+
+func _read_projectile_config(attack_component: Attack) -> Dictionary:
 	var projectile_type := "projectile"
 	var projectile_speed := 340.0
 	var projectile_damage := 5
 	var projectile_knockback := 220.0
 
 	if attack_component:
-		projectile_type = attack_component.projectile_type
-		projectile_speed = attack_component.projectile_speed
 		projectile_damage = attack_component.damage
-		projectile_knockback = attack_component.knockback_force
+		if attack_component.get("projectile_type") != null:
+			projectile_type = str(attack_component.get("projectile_type"))
+		if attack_component.get("projectile_speed") != null:
+			projectile_speed = float(attack_component.get("projectile_speed"))
+		if attack_component.get("knockback_force") != null:
+			projectile_knockback = float(attack_component.get("knockback_force"))
 
-	var spawn_pos := shooter.global_position + dir * 8.0
-	var projectile_data := {
+	return {
 		"type": projectile_type,
-		"position": spawn_pos,
-		"direction": dir,
 		"speed": projectile_speed,
 		"damage": projectile_damage,
 		"knockback": projectile_knockback,
-		"owner_id": shooter_peer,
-		"team": shooter.team,
 	}
-	spawn_projectile(projectile_data)
 
 func spawn_projectile(data: Dictionary) -> void:
 	if not multiplayer.is_server():

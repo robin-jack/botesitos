@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "godot-solo": {
+      "type": "local",
+      "command": [
+        "npx.cmd",
+        "-y",
+        "@coding-solo/godot-mcp"
+      ],
+      "env": {
+        "GODOT_PATH": "C:/Users/Robin Jack/godot_engine/godot.exe",
+        "DEBUG": "true"
+      }
+    }
+  }
+}

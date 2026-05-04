@@ -12,6 +12,7 @@ signal cooldown_finished
 @export var dash_duration: float = 0.13
 @export var cooldown: float = 1.2
 @export var invincible_during_dash: bool = true
+@export var air_dash_upward_boost: float = 120.0
 
 var is_dashing: bool = false
 var is_on_cooldown: bool = false
@@ -21,6 +22,7 @@ var can_dash: bool = true:
 var _dash_timer: float = 0.0
 var _cooldown_timer: float = 0.0
 var _dash_direction: Vector2 = Vector2.RIGHT
+var _air_boost_pending: bool = false
 
 func _process(delta: float) -> void:
 	if is_dashing:
@@ -36,12 +38,13 @@ func _process(delta: float) -> void:
 
 # Public API
 ## Returns true if the dash was started, false if on cooldown.
-func try_dash(direction: Vector2) -> bool:
+func try_dash(direction: Vector2, on_floor: bool = true, current_velocity_y: float = 0.0) -> bool:
 	if not can_dash:
 		return false
 	_dash_direction = direction.normalized()
 	if _dash_direction == Vector2.ZERO:
 		_dash_direction = Vector2.RIGHT
+	_air_boost_pending = (not on_floor) and current_velocity_y < 0.0
 	is_dashing = true
 	_dash_timer = dash_duration
 	dash_started.emit(_dash_direction)
@@ -52,7 +55,9 @@ func try_dash(direction: Vector2) -> bool:
 func apply_dash_velocity(velocity: Vector2) -> Vector2:
 	if is_dashing:
 		velocity.x = _dash_direction.x * dash_speed
-		velocity.y = 0.0  # cancel vertical movement during dash
+		if _air_boost_pending:
+			velocity.y -= max(0.0, air_dash_upward_boost)
+			_air_boost_pending = false
 	return velocity
 
 func get_cooldown_ratio() -> float:
@@ -65,4 +70,5 @@ func _end_dash() -> void:
 	is_dashing = false
 	is_on_cooldown = true
 	_cooldown_timer = cooldown
+	_air_boost_pending = false
 	dash_ended.emit()

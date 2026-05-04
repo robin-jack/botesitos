@@ -1,5 +1,9 @@
-﻿# Botesitos
+# Botesitos
 
-### Decription
-Botesitos is an online 2D PvP shooter platformer made entirely on Godot 4.6. Where many Botinis fight against the powerful Botato in a series of rounds. Each of them with their unique abilities and attacks. Who will win?
+### Description
 
+Botesitos is an online 2D PvP shooter platformer made entirely on Godot 4.6. Many Botinis fight against the powerful Botato in a series of rounds, each with unique abilities and attacks.
+
+### Documentation
+
+- [Architecture notes](docs/architecture.md)

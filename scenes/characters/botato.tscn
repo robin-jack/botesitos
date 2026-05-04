@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://b1526uv1pxisa" path="res://assets/botato.png" id="2_lc2ma"]
 [ext_resource type="Script" uid="uid://c3hchdb57bq4w" path="res://scripts/components/health.gd" id="3_yppj8"]
 [ext_resource type="Script" uid="uid://eomwl72h5mdg" path="res://scripts/components/gun_attack.gd" id="4_314el"]
-[ext_resource type="PackedScene" uid="uid://b8mmf48321hp" path="res://scenes/projectiles/bullet.tscn" id="5_cbq76"]
+[ext_resource type="PackedScene" uid="uid://by5n3jobbje87" path="res://scenes/projectiles/laser.tscn" id="5_lc2ma"]
 [ext_resource type="Script" uid="uid://bl7vivnd2isdp" path="res://scripts/components/dash.gd" id="6_fbotk"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_rsm6a"]
@@ -27,6 +27,8 @@ properties/3/replication_mode = 2
 [node name="Boss" type="CharacterBody2D" unique_id=1703312197]
 script = ExtResource("1_lc2ma")
 team = "boss"
+move_speed = 160.0
+gravity_scale = 1.2
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=837012661]
 texture_filter = 1
@@ -41,7 +43,8 @@ max_health = 50
 
 [node name="Attack" type="Node" parent="." unique_id=1898158667]
 script = ExtResource("4_314el")
-projectile_scene = ExtResource("5_cbq76")
+projectile_scene = ExtResource("5_lc2ma")
+projectile_type = "laser"
 projectile_speed = 320.0
 knockback_force = 400.0
 cooldown = 0.75

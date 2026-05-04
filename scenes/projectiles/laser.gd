@@ -1,5 +1,7 @@
 extends Area2D
 
+const EXPLOSION_SCENE = preload("uid://2f8twwxlgbxf")
+
 @export var lifetime: float = 0.35
 
 @onready var rect_top: ColorRect = $RectTop
@@ -15,6 +17,7 @@ var owner_team: String = "botinis"
 var damage: int = 5
 var knockback: float = 120.0
 var _hit_peer_ids := {}
+var _terrain_impact_emitted: bool = false
 
 func setup(data: Dictionary) -> void:
 	var dir_data = data.get("direction", Vector2.RIGHT)
@@ -31,11 +34,22 @@ func setup(data: Dictionary) -> void:
 	knockback = float(data.get("knockback", 120.0))
 
 func _ready() -> void:
+	if not _can_run():
+		return
 	await get_tree().physics_frame
-	if multiplayer.is_server():
+	if not _can_run():
+		return
+	if _is_server():
 		_configure_laser_geometry()
-	await get_tree().create_timer(lifetime).timeout
-	if multiplayer.is_server():
+	if not _can_run():
+		return
+	var tree := get_tree()
+	if tree == null:
+		return
+	await tree.create_timer(lifetime).timeout
+	if not _can_run():
+		return
+	if _is_server():
 		queue_free()
 
 func _configure_laser_geometry() -> void:
@@ -52,6 +66,10 @@ func _configure_laser_geometry() -> void:
 	if ray_bot.is_colliding():
 		len_bot = ray_bot.global_position.distance_to(ray_bot.get_collision_point())
 	draw_laser.rpc(len_top, len_bot, facing_dir)
+
+	var terrain_hit := _get_terrain_hit_point()
+	if terrain_hit.get("hit", false):
+		_spawn_impact_effect(terrain_hit.get("point", global_position), "terrain")
 
 @rpc("authority", "call_local", "reliable")
 func draw_laser(len_top: float, len_bot: float, dir: float) -> void:
@@ -77,7 +95,7 @@ func draw_laser(len_top: float, len_bot: float, dir: float) -> void:
 		rect_bot.position = Vector2(0.0, 0.0)
 
 func _physics_process(_delta: float) -> void:
-	if not multiplayer.is_server():
+	if not _can_run() or not _is_server():
 		return
 	for body in get_overlapping_bodies():
 		if body is CharacterBody2D:
@@ -90,3 +108,62 @@ func _physics_process(_delta: float) -> void:
 				continue
 			_hit_peer_ids[target_peer] = true
 			body.apply_server_damage(damage, Vector2(facing_dir, 0.0), knockback, shooter_id)
+			_spawn_impact_effect(body.global_position, "player")
+
+func _spawn_impact_effect(at_position: Vector2, hit_type: String) -> void:
+	if not _is_server():
+		return
+	if hit_type == "terrain":
+		if _terrain_impact_emitted:
+			return
+		_terrain_impact_emitted = true
+	play_impact_effect.rpc(at_position, hit_type)
+
+@rpc("authority", "call_local", "reliable")
+func play_impact_effect(at_position: Vector2, hit_type: String = "terrain") -> void:
+	if not is_inside_tree():
+		return
+	var explosion := EXPLOSION_SCENE.instantiate()
+	explosion.global_position = at_position
+	if explosion is CanvasItem:
+		var fx := explosion as CanvasItem
+		if hit_type == "player":
+			fx.modulate = Color(1.0, 1.0, 1.0, 1.0)
+			fx.scale = Vector2.ONE
+		else:
+			fx.modulate = Color(1.0, 0.82, 0.42, 1.0)
+			fx.scale = Vector2(0.85, 0.85)
+	var game := get_tree().root.get_node_or_null("Game")
+	if game:
+		game.add_child(explosion)
+
+func _get_terrain_hit_point() -> Dictionary:
+	var points: Array[Vector2] = []
+	if ray_top.is_colliding():
+		var top_collider := ray_top.get_collider()
+		if not (top_collider is CharacterBody2D):
+			points.append(ray_top.get_collision_point())
+	if ray_bot.is_colliding():
+		var bot_collider := ray_bot.get_collider()
+		if not (bot_collider is CharacterBody2D):
+			points.append(ray_bot.get_collision_point())
+	if points.is_empty():
+		return {"hit": false}
+
+	var selected := points[0]
+	for point in points:
+		if point.distance_to(global_position) < selected.distance_to(global_position):
+			selected = point
+	return {"hit": true, "point": selected}
+
+func _can_run() -> bool:
+	return is_instance_valid(self) and is_inside_tree() and not is_queued_for_deletion()
+
+func _is_server() -> bool:
+	if not _can_run():
+		return false
+	var tree := get_tree()
+	if tree == null:
+		return false
+	var mp := tree.get_multiplayer()
+	return mp != null and mp.is_server()

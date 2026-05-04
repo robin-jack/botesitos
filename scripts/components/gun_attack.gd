@@ -35,5 +35,4 @@ func _perform_attack(direction: Vector2) -> void:
 	}
 	attack_executed.emit(attack_data)
 
-	# Request the server to spawn — game.gd listens to this signal
-	# (Works even for the authority peer because signals are local)
+	# player listens to this signal and requests the server to spawn
