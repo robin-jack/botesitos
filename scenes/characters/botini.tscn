@@ -3,8 +3,9 @@
 [ext_resource type="Script" uid="uid://dog07svqs2csb" path="res://scenes/characters/botini.gd" id="1_5mest"]
 [ext_resource type="Texture2D" uid="uid://bxg5056857nvd" path="res://assets/botini.png" id="2_ktxuw"]
 [ext_resource type="Script" uid="uid://c3hchdb57bq4w" path="res://scripts/components/health.gd" id="3_yetl1"]
-[ext_resource type="Script" uid="uid://caq5bs20bt81t" path="res://scripts/components/burst_attack.gd" id="4_yetl1"]
+[ext_resource type="Script" uid="uid://caq5bs20bt81t" path="res://scripts/abilities/burst_attack.gd" id="4_yetl1"]
 [ext_resource type="Script" uid="uid://bl7vivnd2isdp" path="res://scripts/components/dash.gd" id="5_foj6h"]
+[ext_resource type="Script" uid="uid://qrxbed73gvf2" path="res://scripts/abilities/melee_attack.gd" id="6_2j76h"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_onrkg"]
 radius = 5.0
@@ -37,16 +38,20 @@ shape = SubResource("CapsuleShape2D_onrkg")
 [node name="Health" type="Node" parent="." unique_id=1032959831]
 script = ExtResource("3_yetl1")
 
-[node name="Attack" type="Node" parent="." unique_id=1898158667]
-script = ExtResource("4_yetl1")
-projectile_speed = 360.0
-knockback_force = 120.0
-burst_size = 5
-damage = 5
-
 [node name="Dash" type="Node" parent="." unique_id=761573989]
 script = ExtResource("5_foj6h")
 cooldown = 0.45
+
+[node name="AbilitySlots" type="Node" parent="." unique_id=1451475456]
+
+[node name="Primary" type="Node" parent="AbilitySlots" unique_id=1121684966]
+script = ExtResource("4_yetl1")
+damage = 5
+
+[node name="Secondary" type="Node" parent="AbilitySlots" unique_id=1253612967]
+script = ExtResource("6_2j76h")
+
+[node name="Utility" type="Node" parent="AbilitySlots" unique_id=296326760]
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1040714569]
 replication_config = SubResource("SceneReplicationConfig_hqtel")

@@ -2,7 +2,8 @@ extends Area2D
 
 const EXPLOSION_SCENE = preload("uid://2f8twwxlgbxf")
 
-@export var lifetime: float = 0.35
+var lifetime: float = 0.0
+var max_range: float = 0.0
 
 @onready var rect_top: ColorRect = $RectTop
 @onready var rect_bot: ColorRect = $RectBottom
@@ -13,28 +14,59 @@ const EXPLOSION_SCENE = preload("uid://2f8twwxlgbxf")
 
 var facing_dir: float = 1.0
 var shooter_id: int = -1
-var owner_team: String = "botinis"
-var damage: int = 5
-var knockback: float = 120.0
+var owner_team: String = ""
+var damage: int = 0
+var knockback: float = 0.0
 var _hit_peer_ids := {}
 var _terrain_impact_emitted: bool = false
+var _configured: bool = false
 
 func setup(data: Dictionary) -> void:
-	var dir_data = data.get("direction", Vector2.RIGHT)
-	var dir: Vector2 = dir_data if dir_data is Vector2 else Vector2.RIGHT
+	if not _has_required_keys(data, [
+		"position",
+		"direction",
+		"owner_id",
+		"team",
+		"damage",
+		"knockback",
+		"lifetime",
+		"range",
+	]):
+		return
+
+	var pos_data = data["position"]
+	if not (pos_data is Vector2):
+		push_error("Laser.setup() requires Vector2 position")
+		return
+	var dir_data = data["direction"]
+	var dir: Vector2 = dir_data if dir_data is Vector2 else Vector2.ZERO
 	if dir.length_squared() < 0.0001:
-		dir = Vector2.RIGHT
+		push_error("Laser.setup() received zero direction")
+		return
 	facing_dir = signf(dir.x)
 	if facing_dir == 0.0:
 		facing_dir = 1.0
-	global_position = data.get("position", Vector2.ZERO)
-	shooter_id = int(data.get("owner_id", -1))
-	owner_team = str(data.get("team", "botinis"))
-	damage = int(data.get("damage", 5))
-	knockback = float(data.get("knockback", 120.0))
+	global_position = pos_data
+	shooter_id = int(data["owner_id"])
+	owner_team = str(data["team"])
+	damage = int(data["damage"])
+	knockback = float(data["knockback"])
+	lifetime = float(data["lifetime"])
+	max_range = float(data["range"])
+	if lifetime <= 0.0:
+		push_error("Laser.setup() requires lifetime > 0")
+		return
+	if max_range <= 0.0:
+		push_error("Laser.setup() requires range > 0")
+		return
+	_configured = true
 
 func _ready() -> void:
 	if not _can_run():
+		return
+	if not _configured:
+		push_error("Laser.setup() missing required runtime payload")
+		queue_free()
 		return
 	await get_tree().physics_frame
 	if not _can_run():
@@ -53,7 +85,7 @@ func _ready() -> void:
 		queue_free()
 
 func _configure_laser_geometry() -> void:
-	var max_len := 1000.0
+	var max_len := max_range
 	ray_top.target_position = Vector2(facing_dir * max_len, 0.0)
 	ray_bot.target_position = Vector2(facing_dir * max_len, 0.0)
 	ray_top.force_raycast_update()
@@ -167,3 +199,11 @@ func _is_server() -> bool:
 		return false
 	var mp := tree.get_multiplayer()
 	return mp != null and mp.is_server()
+
+
+func _has_required_keys(data: Dictionary, keys: Array[String]) -> bool:
+	for key in keys:
+		if not data.has(key):
+			push_error("Laser.setup() missing required key: " + key)
+			return false
+	return true

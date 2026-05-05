@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://bctk5omhkoseb"]
+
+[ext_resource type="Script" uid="uid://dt68vdr3nxca7" path="res://scenes/abilities/melee_hitbox.gd" id="1_melee"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_melee"]
+size = Vector2(34, 22)
+
+[node name="MeleeHitbox" type="Area2D" unique_id=1896905667]
+script = ExtResource("1_melee")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1449804656]
+shape = SubResource("RectangleShape2D_melee")

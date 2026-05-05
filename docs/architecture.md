@@ -39,3 +39,23 @@ This implies a loadout model:
 - The lobby or pre-match screen collects player choices.
 - The server validates or stores trusted loadout data.
 - Spawned players receive server-approved loadouts.
+
+## Combat Ability Model
+
+Combat code follows these terms:
+
+- Components: always-on character logic like health and dash.
+- Abilities: player-triggered actions assigned to slots (primary, secondary, utility).
+- Attacks: abilities that deal damage.
+
+Current slot behavior:
+
+- Ability scripts are attached directly on each slot node.
+- Slots are fixed by character scene right now.
+- Loadout dictionaries are stored but not yet used to dynamically build slot abilities at spawn time.
+
+Runtime data ownership:
+
+- Attack scripts own gameplay tuning values such as damage, knockback, speed, cooldown, range, and lifetime.
+- Spawned combat scenes consume runtime payloads from the attack and apply collision/impact behavior.
+- Spawned combat scenes do not define gameplay defaults for attack tuning values.

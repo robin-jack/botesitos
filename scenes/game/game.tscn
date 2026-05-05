@@ -2,9 +2,25 @@
 
 [ext_resource type="Script" uid="uid://blclk2bqfqh3k" path="res://scenes/game/game.gd" id="1_80nbo"]
 [ext_resource type="Texture2D" uid="uid://dnp3auttimvvn" path="res://assets/battleground.png" id="2_e2o6t"]
+[ext_resource type="Script" path="res://scripts/managers/player_registry.gd" id="3_registry"]
+[ext_resource type="Script" path="res://scripts/managers/player_spawn_service.gd" id="4_spawn"]
+[ext_resource type="Script" path="res://scripts/managers/match_controller.gd" id="5_match"]
+[ext_resource type="Script" path="res://scripts/managers/combat_world.gd" id="6_combat"]
 
 [node name="Game" type="Node2D" unique_id=390760802]
 script = ExtResource("1_80nbo")
+
+[node name="PlayerRegistry" type="Node" parent="."]
+script = ExtResource("3_registry")
+
+[node name="PlayerSpawnService" type="Node" parent="."]
+script = ExtResource("4_spawn")
+
+[node name="MatchController" type="Node" parent="."]
+script = ExtResource("5_match")
+
+[node name="CombatWorld" type="Node" parent="."]
+script = ExtResource("6_combat")
 
 [node name="Level" type="StaticBody2D" parent="." unique_id=1106344205]
 

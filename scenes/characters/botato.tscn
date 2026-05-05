@@ -3,9 +3,9 @@
 [ext_resource type="Script" uid="uid://dog07svqs2csb" path="res://scenes/characters/botini.gd" id="1_lc2ma"]
 [ext_resource type="Texture2D" uid="uid://b1526uv1pxisa" path="res://assets/botato.png" id="2_lc2ma"]
 [ext_resource type="Script" uid="uid://c3hchdb57bq4w" path="res://scripts/components/health.gd" id="3_yppj8"]
-[ext_resource type="Script" uid="uid://eomwl72h5mdg" path="res://scripts/components/gun_attack.gd" id="4_314el"]
-[ext_resource type="PackedScene" uid="uid://by5n3jobbje87" path="res://scenes/projectiles/laser.tscn" id="5_lc2ma"]
+[ext_resource type="Script" uid="uid://ng16q8sq801v" path="res://scripts/abilities/laser_attack.gd" id="4_314el"]
 [ext_resource type="Script" uid="uid://bl7vivnd2isdp" path="res://scripts/components/dash.gd" id="6_fbotk"]
+[ext_resource type="Script" uid="uid://qrxbed73gvf2" path="res://scripts/abilities/melee_attack.gd" id="6_lc2ma"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_rsm6a"]
 height = 24.0
@@ -41,18 +41,21 @@ shape = SubResource("CapsuleShape2D_rsm6a")
 script = ExtResource("3_yppj8")
 max_health = 50
 
-[node name="Attack" type="Node" parent="." unique_id=1898158667]
-script = ExtResource("4_314el")
-projectile_scene = ExtResource("5_lc2ma")
-projectile_type = "laser"
-projectile_speed = 320.0
-knockback_force = 400.0
-cooldown = 0.75
-damage = 5
-
 [node name="Dash" type="Node" parent="." unique_id=761573989]
 script = ExtResource("6_fbotk")
 cooldown = 0.45
+
+[node name="AbilitySlots" type="Node" parent="." unique_id=880968127]
+
+[node name="Primary" type="Node" parent="AbilitySlots" unique_id=1347871847]
+script = ExtResource("4_314el")
+cooldown = 0.75
+damage = 5
+
+[node name="Secondary" type="Node" parent="AbilitySlots" unique_id=1000828303]
+script = ExtResource("6_lc2ma")
+
+[node name="Utility" type="Node" parent="AbilitySlots" unique_id=567937280]
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1040714569]
 replication_config = SubResource("SceneReplicationConfig_hqtel")
