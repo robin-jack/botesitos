@@ -6,8 +6,8 @@ signal player_connected(peer_id, player_info)
 signal player_disconnected(peer_id)
 signal server_disconnected
 
-const PORT = 58008
 const DEFAULT_SERVER_IP = "127.0.0.1"
+const DEFAULT_SERVER_PORT = 58008
 const MAX_CONNECTIONS = 10
 const GAME_SCENE_PATH = "res://scenes/game/game.tscn"
 const LOBBY_SCENE_PATH = "res://scenes/lobby/lobby.tscn"
@@ -27,19 +27,17 @@ func _ready():
 	multiplayer.connection_failed.connect(_on_connected_fail)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
-func join_game(address = ""):
-	if address.is_empty():
-		address = DEFAULT_SERVER_IP
+func join_game(port: int, address: String):
 	var peer = ENetMultiplayerPeer.new()
-	var error = peer.create_client(address, PORT)
+	var error = peer.create_client(address, port)
 	if error != OK:
 		return error
 	multiplayer.multiplayer_peer = peer
 	return OK
 
-func create_game():
+func create_game(port: int):
 	var peer = ENetMultiplayerPeer.new()
-	var error = peer.create_server(PORT, MAX_CONNECTIONS)
+	var error = peer.create_server(port, MAX_CONNECTIONS)
 	if error != OK:
 		return error
 	multiplayer.multiplayer_peer = peer

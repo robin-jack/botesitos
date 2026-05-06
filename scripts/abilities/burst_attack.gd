@@ -6,7 +6,7 @@ extends "res://scripts/abilities/ability.gd"
 ## When ammo reaches 0, cooldown starts; then ammo replenishes one-by-one.
 
 @export var projectile_scene: PackedScene = preload("uid://b8mmf48321hp")
-@export var projectile_speed: float = 380.0
+@export var projectile_speed: float = 480.0
 @export var knockback_force: float = 220.0
 @export var projectile_lifetime: float = 3.0
 @export var spawn_point_path: NodePath = NodePath("")

@@ -75,11 +75,20 @@ layout_mode = 2
 [node name="IPInput" type="LineEdit" parent="Center/Panel/VBox/JoinRow" unique_id=321151451]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Server IP (default: 127.0.0.1)"
+size_flags_stretch_ratio = 2.0
+placeholder_text = "Server IP (127.0.0.1)"
+
+[node name="PortInput" type="LineEdit" parent="Center/Panel/VBox/JoinRow" unique_id=1546135159]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Port"
 
 [node name="JoinButton" type="Button" parent="Center/Panel/VBox/JoinRow" unique_id=581241930]
 layout_mode = 2
 text = "Join"
+
+[node name="PortRow" type="HBoxContainer" parent="Center/Panel/VBox" unique_id=1244604661]
+layout_mode = 2
 
 [node name="Separator1" type="HSeparator" parent="Center/Panel/VBox" unique_id=894416000]
 layout_mode = 2

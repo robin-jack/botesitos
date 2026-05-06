@@ -6,6 +6,7 @@ extends Control
 
 @onready var name_input:   LineEdit      = $Center/Panel/VBox/NameRow/NameInput
 @onready var ip_input:     LineEdit      = $Center/Panel/VBox/JoinRow/IPInput
+@onready var port_input:   LineEdit      = $Center/Panel/VBox/JoinRow/PortInput
 @onready var host_button:  Button        = $Center/Panel/VBox/HostRow/HostButton
 @onready var join_button:  Button        = $Center/Panel/VBox/JoinRow/JoinButton
 @onready var start_button: Button        = $Center/Panel/VBox/StartButton
@@ -32,12 +33,15 @@ func _ready() -> void:
 
 func _on_host_pressed() -> void:
 	_apply_name()
-	var err = Lobby.create_game()
+	var port := Lobby.DEFAULT_SERVER_PORT
+	if not port_input.text.is_empty():
+		port = port_input.text.strip_edges() as int
+	var err = Lobby.create_game(port)
 	if err != OK:
 		status_label.text = "Failed to host (error %s). Port may be in use." % err
 		return
 
-	status_label.text = "Hosting on port %d — waiting for players..." % Lobby.PORT
+	status_label.text = "Hosting on port %d — waiting for players..." % port
 	host_button.disabled = true
 	join_button.disabled = true
 	start_button.visible = true
@@ -47,10 +51,15 @@ func _on_host_pressed() -> void:
 func _on_join_pressed() -> void:
 	_apply_name()
 	var ip := ip_input.text.strip_edges()
+	var port := int(port_input.text.strip_edges())
+	print(port)
 	if ip.is_empty():
 		ip = Lobby.DEFAULT_SERVER_IP
+	if port == 0:
+		print(port)
+		port = Lobby.DEFAULT_SERVER_PORT
 
-	var err = Lobby.join_game(ip)
+	var err = Lobby.join_game(port, ip)
 	if err != OK:
 		status_label.text = "Failed to connect (error %s)." % err
 		return
