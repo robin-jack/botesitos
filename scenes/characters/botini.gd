@@ -4,6 +4,8 @@ const EXPLOSION_SCENE = preload("uid://2f8twwxlgbxf")
 const GRAVITY := 980.0
 const COYOTE_TIME_MAX = 0.12 # seconds
 
+enum TEAM { BOTINI, BOTATO }
+
 # Replicated state 
 var facing_right: bool = true:
 	set(value):
@@ -13,14 +15,14 @@ var facing_right: bool = true:
 var is_alive: bool = true
 
 # Set by game.gd before add_child
-@export var team: String = "botini"
+@export var team: TEAM
 var peer_id: int = 1
 var player_name: String = "Player"
 
 # Stats
 var max_health = 10
-var move_speed: float = 180.0
-var jump_force: float = -310.0
+var move_speed: float = 220.0
+var jump_force: float = -360.0
 var gravity_scale: float = 1.0
 
 # private input state
@@ -47,7 +49,8 @@ func _ready() -> void:
 	set_physics_process(is_multiplayer_authority())
 	
 func _physics_process(delta: float) -> void:
-	if not is_alive: return
+	if not is_alive:
+		return
 	_apply_gravity(delta)
 	_gather_input()
 	_handle_jump()
@@ -105,12 +108,13 @@ func _update_facing() -> void:
 # "any_peer" lets the server call it on all peers
 @rpc("any_peer", "call_local", "reliable")
 func receive_damage(amount: int, direction: Vector2, knockback: float) -> void:
-	if multiplayer.get_remote_sender_id() != 1: return
-	if not is_alive: return
+	if not is_alive:
+		return
 	health.take_damage(amount)
 	_rpc_play_damage_effects.rpc(direction)
 	if is_multiplayer_authority():
 		velocity += (direction * knockback)
+		velocity.y -= knockback / 4.0
 		
 @rpc("any_peer", "call_local", "reliable")
 func set_alive(alive: bool) -> void:
@@ -129,7 +133,7 @@ func respawn(pos: Vector2) -> void:
 	health.reset()
 	attack.reset()
 
-@rpc("any_peer", "call_local", "reliable")
+@rpc("any_peer", "reliable")
 func _rpc_play_damage_effects(hit_direction: Vector2):
 	var explosion = EXPLOSION_SCENE.instantiate()
 	var offset = -hit_direction.normalized() * 8.0

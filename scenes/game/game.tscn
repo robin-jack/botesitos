@@ -11,7 +11,8 @@ script = ExtResource("1_80nbo")
 [node name="ColorRect" type="ColorRect" parent="Level" unique_id=144486949]
 offset_right = 960.0
 offset_bottom = 540.0
-color = Color(0.77846426, 0.7190552, 0.9296875, 1)
+rotation = -0.00059140037
+color = Color(0.3581848, 0.5669455, 0.7578125, 1)
 
 [node name="Sprite2D" type="Sprite2D" parent="Level" unique_id=1344300063]
 texture_filter = 1
@@ -73,15 +74,16 @@ polygon = PackedVector2Array(280, 128, 280, 136, 400, 136, 400, 128)
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=1488608898]
 
 [node name="Spawn1" type="Marker2D" parent="SpawnPoints" unique_id=2053666924]
-position = Vector2(480, 387)
+position = Vector2(393, 226)
 
 [node name="Spawn2" type="Marker2D" parent="SpawnPoints" unique_id=526632999]
-position = Vector2(908, 202)
+position = Vector2(573, 226)
 
 [node name="Spawn3" type="Marker2D" parent="SpawnPoints" unique_id=1464727871]
-position = Vector2(44, 202)
+position = Vector2(530, 226)
 
 [node name="Players" type="Node2D" parent="." unique_id=556750820]
+position = Vector2(451, 122)
 
 [node name="Projectiles" type="Node2D" parent="." unique_id=677743772]
 

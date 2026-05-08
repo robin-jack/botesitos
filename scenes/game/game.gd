@@ -5,6 +5,7 @@ const BOSS_SCENE   = preload("uid://df6cjrmb84qw7")
 const BULLET_SCENE = preload("uid://b8mmf48321hp")
 const LASER_SCENE  = preload("uid://by5n3jobbje87")
 
+enum TEAM { BOTINI, BOTATO }
 enum Phase { WARMUP, COUNTDOWN, FIGHTING, ROUND_OVER, MATCH_OVER }
 
 @export var total_rounds:          int   = 5
@@ -25,7 +26,7 @@ var _warmup_respawn_timers: Dictionary = {}
 
 ## peer_id -> character node
 var players: Dictionary = {}
-var boss_peer_id:     int        = -1
+var boss_peer_id:     int   = -1
 var botinis_peer_ids: Array = []
 
 @onready var players_container:     Node2D = $Players
@@ -89,16 +90,15 @@ func _spawn_single_player(pid: int) -> void:
 		return
 
 	var player := BOTINI_SCENE.instantiate() as CharacterBody2D
-	player.team        = "botini"
 	player.peer_id     = pid
+	player.team        = pid
 	player.player_name = Lobby.players[pid].get("name", "Player %d" % pid)
 	player.name        = str(pid)
 
 	players[pid] = player
-	players_container.add_child(player)
-
 	var sp: Node2D = spawn_points[randi() % spawn_points.size()]
-	player.global_position = sp.global_position
+	player.position = sp.global_position - players_container.global_position
+	players_container.add_child(player)
 
 	var hc := player.get_node_or_null("Health") as Health
 	if hc:
@@ -217,26 +217,23 @@ func _spawn_players() -> void:
 
 		if is_boss:
 			player              = BOSS_SCENE.instantiate() as CharacterBody2D
-			player.team         = "botato"
 			player.peer_id      = pid
 			player.player_name  = Lobby.players[pid].get("name", "Botato %d" % pid)
 		else:
 			player              = BOTINI_SCENE.instantiate() as CharacterBody2D
-			player.team         = "botini"
 			player.peer_id      = pid
 			player.player_name  = Lobby.players[pid].get("name", "Botini %d" % pid)
 
 		player.name = str(pid)
-		players_container.add_child(player, true)
-		players[pid] = player
-
 		var sp: Node2D
 		if is_boss:
 			sp = spawn_points[randi() % spawn_points.size()]
 		else:
 			sp = spawn_points[botini_idx % spawn_points.size()]
 			botini_idx += 1
-		player.global_position = sp.global_position
+		player.position = sp.global_position - players_container.global_position
+		players_container.add_child(player, true)
+		players[pid] = player
 
 		var hc := player.get_node("Health") as Health
 		if hc:
@@ -250,18 +247,18 @@ func _check_round_end() -> void:
 	var botinis_alive := _any_botini_alive()
 
 	if not boss_alive and not botinis_alive:
-		_award_round("botini", "Simultaneous KO — Botinis take the round!")
+		_award_round(TEAM.BOTINI, "Simultaneous KO — Botinis take the round!")
 	elif not boss_alive:
-		_award_round("botini", "Boss eliminated — Botinis win!")
+		_award_round(TEAM.BOTINI, "Boss eliminated — Botinis win!")
 	elif not botinis_alive:
-		_award_round("botato", "Botinis eliminated — Botato wins!")
+		_award_round(TEAM.BOTATO, "Botinis eliminated — Botato wins!")
 
 
-func _award_round(winner_team: String, _msg: String) -> void:
+func _award_round(winner_team: TEAM, _msg: String) -> void:
 	_phase           = Phase.ROUND_OVER
 	_round_end_timer = round_end_delay
 
-	if winner_team == "botato":
+	if winner_team == TEAM.BOTATO:
 		# Botato wins: +2 per dead Botini, +2 survive
 		var botato = players.get(boss_peer_id)
 		if botato and botato.get("is_alive") == true:
@@ -308,12 +305,16 @@ func _match_is_over() -> bool:
 func _end_match() -> void:
 	_phase = Phase.MATCH_OVER
 	_round_end_timer = 5.0
+	# Spawn warmup players immediately so clients have nodes to sync to.
+	# This prevents stale MultiplayerSynchronizer cache errors while the
+	# match-over screen is shown.
+	for pid: int in Lobby.players:
+		_spawn_single_player(pid)
 	_rpc_show_match_over.rpc(_player_scores)
 	stop_button.hide()
 
 
 func _return_to_warmup() -> void:
-	_cleanup_round()
 	_boss_rotation.clear()
 	_current_round = 0
 	_player_scores.clear()
