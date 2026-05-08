@@ -13,7 +13,7 @@ var facing_right: bool = true:
 var is_alive: bool = true
 
 # Set by game.gd before add_child
-@export var team: int
+@export var team: String = "botini"
 var peer_id: int = 1
 var player_name: String = "Player"
 
@@ -40,7 +40,6 @@ var coyote_timer: float = 0.0
 func _enter_tree() -> void:
 	peer_id = int(name)
 	set_multiplayer_authority(peer_id)
-	team = peer_id
 		
 func _ready() -> void:
 	health.died.connect(_on_died)
@@ -106,7 +105,7 @@ func _update_facing() -> void:
 # "any_peer" lets the server call it on all peers
 @rpc("any_peer", "call_local", "reliable")
 func receive_damage(amount: int, direction: Vector2, knockback: float) -> void:
-	if not multiplayer.is_server(): return  # only server can deal damage
+	if multiplayer.get_remote_sender_id() != 1: return
 	if not is_alive: return
 	health.take_damage(amount)
 	_rpc_play_damage_effects.rpc(direction)
@@ -115,14 +114,14 @@ func receive_damage(amount: int, direction: Vector2, knockback: float) -> void:
 		
 @rpc("any_peer", "call_local", "reliable")
 func set_alive(alive: bool) -> void:
-	if not multiplayer.is_server(): return  # only server controls alive state
+	if multiplayer.get_remote_sender_id() != 1: return
 	is_alive = alive
 	visible = alive
 	if not alive: velocity = Vector2.ZERO
 
 @rpc("any_peer", "call_local", "reliable")
 func respawn(pos: Vector2) -> void:
-	if not multiplayer.is_server(): return
+	if multiplayer.get_remote_sender_id() != 1: return
 	global_position = pos
 	velocity = Vector2.ZERO
 	is_alive = true

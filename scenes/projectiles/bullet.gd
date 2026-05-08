@@ -11,7 +11,7 @@ var speed:          float   = 340.0
 var damage:         int     = 20
 var knockback_force: float  = 220.0
 var owner_peer_id:  int     = -1
-var owner_team:     int  = -1
+var owner_team:     String = ""
 
 var _alive: bool  = true
 var _timer: float = 0.0
@@ -37,7 +37,7 @@ func setup(data: Dictionary) -> void:
 	damage          = data.get("damage",    20)
 	knockback_force = data.get("knockback", 220.0)
 	owner_peer_id   = data.get("owner_id",  -1)
-	owner_team      = data.get("team",      -1)
+	owner_team      = data.get("team",      "")
 	rotation        = direction.angle()
 
 func _on_body_entered(body: Node) -> void:

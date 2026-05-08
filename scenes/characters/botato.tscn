@@ -23,13 +23,9 @@ properties/2/replication_mode = 2
 properties/3/path = NodePath(".:is_alive")
 properties/3/spawn = true
 properties/3/replication_mode = 2
-properties/4/path = NodePath(".:spawn_position")
-properties/4/spawn = true
-properties/4/replication_mode = 0
 
 [node name="Boss" type="CharacterBody2D" unique_id=1703312197]
 script = ExtResource("1_lc2ma")
-team = 1
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=837012661]
 texture_filter = 1
