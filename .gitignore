@@ -1,3 +1,28 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Build outputs
+builds/
+*.exe
+*.pck
+*.zip
+*.x86_64
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+
+# Summer Engine local-only state (SummerGit, caches, locks)
+.summer/local/

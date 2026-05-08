@@ -11,10 +11,9 @@ var facing_right: bool = true:
 		if is_inside_tree() and sprite:
 			sprite.flip_h = not value
 var is_alive: bool = true
-var spawn_position: Vector2 = Vector2.ZERO
 
 # Set by game.gd before add_child
-@export var team: String
+@export var team: int
 var peer_id: int = 1
 var player_name: String = "Player"
 
@@ -39,23 +38,13 @@ var coyote_timer: float = 0.0
 @onready var dash:   Dash = $Dash
 
 func _enter_tree() -> void:
-	# Name is "Player_<peer_id>", set by game.gd before add_child().
-	# The MultiplayerSpawner preserves this name on clients.
-	# We MUST set authority here, before the MultiplayerSynchronizer's
-	# own _enter_tree fires and registers with the replication system.
-	var pid_str := name.trim_prefix("Player_")
-	if pid_str.is_valid_int():
-		var pid := pid_str.to_int()
-		peer_id = pid
-		set_multiplayer_authority(pid)
+	peer_id = int(name)
+	set_multiplayer_authority(peer_id)
+	team = peer_id
 		
 func _ready() -> void:
 	health.died.connect(_on_died)
 	attack.attack_executed.connect(_on_attack_executed)
-	call_deferred(&"_apply_spawn")
-
-func _apply_spawn() -> void:
-	global_position = spawn_position
 	set_physics_process(is_multiplayer_authority())
 	
 func _physics_process(delta: float) -> void:

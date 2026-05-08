@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "godot_ai": {
+      "type": "command",
+      "command": "C:/Users/Robin Jack/.local/bin/uv.exe",
+      "args": [
+        "run",
+        "godot-ai-mcp"
+      ],
+      "enabled": true
+    }
+  }
+}

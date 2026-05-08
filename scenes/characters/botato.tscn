@@ -29,7 +29,7 @@ properties/4/replication_mode = 0
 
 [node name="Boss" type="CharacterBody2D" unique_id=1703312197]
 script = ExtResource("1_lc2ma")
-team = "boss"
+team = 1
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=837012661]
 texture_filter = 1

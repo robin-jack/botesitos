@@ -1,39 +1,32 @@
 extends Node
 
-# Autoload named Lobby
+# Autoload named "Lobby"
 
-signal player_connected(peer_id, player_info)
-signal player_disconnected(peer_id)
+signal player_connected(peer_id: int, player_info: Dictionary)
+signal player_disconnected(peer_id: int)
 signal server_disconnected
+signal connection_failed
 
 const PORT = 58008
 const DEFAULT_SERVER_IP = "127.0.0.1"
 const MAX_CONNECTIONS = 10
 
-var players = {}
-var player_info = {"name": "Name"}
-var players_loaded = 0
+var player_info: Dictionary = {"name": "Botini"}
 
-func _ready():
-	multiplayer.peer_connected.connect(_on_player_connected)
-	multiplayer.peer_disconnected.connect(_on_player_disconnected)
+var players: Dictionary = {}
+
+
+func _ready() -> void:
+	multiplayer.peer_connected.connect(_on_peer_connected)
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_ok)
 	multiplayer.connection_failed.connect(_on_connected_fail)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
-func join_game(address = ""):
-	if address.is_empty():
-		address = DEFAULT_SERVER_IP
-	var peer = ENetMultiplayerPeer.new()
-	var error = peer.create_client(address, PORT)
-	if error != OK:
-		return error
-	multiplayer.multiplayer_peer = peer
-	return OK
 
-func create_game():
-	var peer = ENetMultiplayerPeer.new()
-	var error = peer.create_server(PORT, MAX_CONNECTIONS)
+func create_game() -> Error:
+	var peer := ENetMultiplayerPeer.new()
+	var error := peer.create_server(PORT, MAX_CONNECTIONS)
 	if error != OK:
 		return error
 	multiplayer.multiplayer_peer = peer
@@ -41,44 +34,54 @@ func create_game():
 	player_connected.emit(1, player_info)
 	return OK
 
-func remove_multiplayer_peer():
+
+func join_game(address: String) -> Error:
+	var peer := ENetMultiplayerPeer.new()
+	var error := peer.create_client(address, PORT)
+	if error != OK:
+		return error
+	multiplayer.multiplayer_peer = peer
+	return OK
+
+
+func remove_multiplayer_peer() -> void:
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	players.clear()
 
-@rpc("call_local", "reliable")
-func load_game(game_scene_path):
-	get_tree().change_scene_to_file(game_scene_path)
 
-@rpc("any_peer", "reliable")
-func player_loaded():
-	if multiplayer.is_server():
-		players_loaded += 1
-		if players_loaded == players.size():
-			$/root/Game.start_game()
-			players_loaded = 0
+# --- Multiplayer callbacks ---
 
-func _on_player_connected(id: int):
+## When a remote peer connects, tell them about ourselves.
+func _on_peer_connected(id: int) -> void:
 	_register_player.rpc_id(id, player_info)
 
+
+## Each peer calls this on the newly connected peer; get_remote_sender_id()
+## tells us who is registering.
 @rpc("any_peer", "reliable")
-func _register_player(new_player_info: Dictionary):
-	var new_player_id = multiplayer.get_remote_sender_id()
+func _register_player(new_player_info: Dictionary) -> void:
+	var new_player_id := multiplayer.get_remote_sender_id()
 	players[new_player_id] = new_player_info
 	player_connected.emit(new_player_id, new_player_info)
 
-func _on_player_disconnected(id: int):
+
+func _on_peer_disconnected(id: int) -> void:
 	players.erase(id)
 	player_disconnected.emit(id)
 
-func _on_connected_ok():
-	var peer_id = multiplayer.get_unique_id()
+
+## Called on the client when the connection to the server is confirmed.
+func _on_connected_ok() -> void:
+	var peer_id := multiplayer.get_unique_id()
 	players[peer_id] = player_info
 	player_connected.emit(peer_id, player_info)
 
-func _on_connected_fail():
-	remove_multiplayer_peer()
 
-func _on_server_disconnected():
+func _on_connected_fail() -> void:
 	remove_multiplayer_peer()
-	players.clear()
+	connection_failed.emit()
+
+
+func _on_server_disconnected() -> void:
+	remove_multiplayer_peer()
 	server_disconnected.emit()
