@@ -21,8 +21,8 @@ var player_name: String = "Player"
 
 # Stats
 var max_health = 10
-var move_speed: float = 220.0
-var jump_force: float = -360.0
+var move_speed: float = 200.0
+var jump_force: float = -450.0
 var gravity_scale: float = 1.0
 
 # private input state

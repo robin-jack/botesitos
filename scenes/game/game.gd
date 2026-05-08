@@ -32,7 +32,7 @@ var botinis_peer_ids: Array = []
 @onready var players_container:     Node2D = $Players
 @onready var projectiles_container: Node2D = $Projectiles
 @onready var spawn_points:          Array  = $SpawnPoints.get_children()
-@onready var _countdown_label:      Label  = $CountdownLabel
+@onready var _countdown_label:      Label  = $UI/CountdownLabel
 @onready var start_button:          Button = $UI/StartButton
 @onready var stop_button:           Button = $UI/StopButton
 
