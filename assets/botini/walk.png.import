@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://i0dhj2kptp6i"
-path="res://.godot/imported/botato.png-37b7bbca1e3431973e226df52f6b92a0.ctex"
+uid="uid://dsycf30uk5unf"
+path="res://.godot/imported/walk.png-15448c636a97edc169bd58409fa277d5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/botato.png"
-dest_files=["res://.godot/imported/botato.png-37b7bbca1e3431973e226df52f6b92a0.ctex"]
+source_file="res://assets/botini/walk.png"
+dest_files=["res://.godot/imported/walk.png-15448c636a97edc169bd58409fa277d5.ctex"]
 
 [params]
 

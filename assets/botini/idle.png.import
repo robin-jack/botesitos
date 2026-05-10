@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://i0dhj2kptp6i"
-path="res://.godot/imported/botato.png-37b7bbca1e3431973e226df52f6b92a0.ctex"
+uid="uid://chwqndii3mi70"
+path="res://.godot/imported/idle.png-17d929eb940b0c6d53a32badba2c57c2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/botato.png"
-dest_files=["res://.godot/imported/botato.png-37b7bbca1e3431973e226df52f6b92a0.ctex"]
+source_file="res://assets/botini/idle.png"
+dest_files=["res://.godot/imported/idle.png-17d929eb940b0c6d53a32badba2c57c2.ctex"]
 
 [params]
 

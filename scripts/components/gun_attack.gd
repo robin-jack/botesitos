@@ -23,7 +23,7 @@ func _perform_attack(direction: Vector2) -> void:
 	var spawn_pos: Vector2 = owner_character.global_position
 	if _spawn_point:
 		spawn_pos = _spawn_point.global_position
-	spawn_pos += direction * 8
+	spawn_pos += direction * 14
 
 	# Build attack data for the server spawn request
 	var attack_data := {

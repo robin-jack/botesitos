@@ -62,7 +62,6 @@ func _on_lobby_player_connected(pid: int, _info: Dictionary) -> void:
 		# Late joiner during match — inform them
 		_rpc_match_in_progress.rpc_id(pid)
 
-
 func _on_lobby_player_disconnected(pid: int) -> void:
 	if players.has(pid):
 		var player_node: Node = players[pid]
@@ -149,8 +148,8 @@ func _process_warmup_respawns(delta: float) -> void:
 		_warmup_respawn_timers[pid] -= delta
 		if _warmup_respawn_timers[pid] <= 0.0:
 			done.append(pid)
-			var player_node = players.get(pid) as Node
-			if is_instance_valid(player_node):
+			var player_node: Player = players.get(pid)
+			if is_instance_valid(Player):
 				var sp = spawn_points[randi() % spawn_points.size()]
 				player_node.respawn.rpc(sp.global_position)
 	for pid: int in done:
@@ -160,6 +159,7 @@ func _process_warmup_respawns(delta: float) -> void:
 # --- Round lifecycle (server only) ---
 
 func _on_start_button_pressed() -> void:
+	_countdown_label.show()
 	if _phase != Phase.WARMUP:
 		return
 	if Lobby.players.size() < 2:
@@ -213,14 +213,14 @@ func _spawn_players() -> void:
 	var botini_idx := 0
 	for pid: int in Lobby.players:
 		var is_boss := (pid == boss_peer_id)
-		var player: CharacterBody2D
+		var player: Player
 
 		if is_boss:
-			player              = BOSS_SCENE.instantiate() as CharacterBody2D
+			player              = BOSS_SCENE.instantiate()
 			player.peer_id      = pid
 			player.player_name  = Lobby.players[pid].get("name", "Botato %d" % pid)
 		else:
-			player              = BOTINI_SCENE.instantiate() as CharacterBody2D
+			player              = BOTINI_SCENE.instantiate()
 			player.peer_id      = pid
 			player.player_name  = Lobby.players[pid].get("name", "Botini %d" % pid)
 
@@ -235,9 +235,7 @@ func _spawn_players() -> void:
 		players_container.add_child(player, true)
 		players[pid] = player
 
-		var hc := player.get_node("Health") as Health
-		if hc:
-			hc.died.connect(func(): _on_player_died(pid))
+		player.health.died.connect(func(): _on_player_died(pid))
 
 
 func _check_round_end() -> void:

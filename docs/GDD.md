@@ -1,6 +1,6 @@
 # 🤖 Botesitos — Game Design Document
 
-> *An asymmetric online 2D PvP shooter-platformer built in Godot 4*
+> *An asymmetric online 2D PvP shooter-platformer built in Godot 4.6*
 
 ---
 

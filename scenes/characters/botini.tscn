@@ -1,15 +1,147 @@
 [gd_scene format=3 uid="uid://cfxvxpnwen2eq"]
 
 [ext_resource type="Script" uid="uid://dog07svqs2csb" path="res://scenes/characters/botini.gd" id="1_5mest"]
-[ext_resource type="Texture2D" uid="uid://bxg5056857nvd" path="res://assets/botini.png" id="2_ktxuw"]
+[ext_resource type="Texture2D" uid="uid://omgwgeau7i2v" path="res://assets/botini/default.png" id="2_22lsi"]
+[ext_resource type="Texture2D" uid="uid://cxx3jjmsw0c3f" path="res://assets/botini/crouch.png" id="2_iw0m1"]
+[ext_resource type="Texture2D" uid="uid://chwqndii3mi70" path="res://assets/botini/idle.png" id="3_syhpw"]
 [ext_resource type="Script" uid="uid://c3hchdb57bq4w" path="res://scripts/components/health.gd" id="3_yetl1"]
+[ext_resource type="Texture2D" uid="uid://dsycf30uk5unf" path="res://assets/botini/walk.png" id="4_iw0m1"]
 [ext_resource type="Script" uid="uid://eomwl72h5mdg" path="res://scripts/components/gun_attack.gd" id="4_yetl1"]
 [ext_resource type="PackedScene" uid="uid://b8mmf48321hp" path="res://scenes/projectiles/bullet.tscn" id="5_2j76h"]
 [ext_resource type="Script" uid="uid://bl7vivnd2isdp" path="res://scripts/components/dash.gd" id="5_foj6h"]
+[ext_resource type="Texture2D" uid="uid://drccbn8u1lm2p" path="res://assets/botini/shoot.png" id="5_ukt74"]
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_onrkg"]
-radius = 5.0
-height = 16.0
+[sub_resource type="AtlasTexture" id="AtlasTexture_ukt74"]
+atlas = ExtResource("3_syhpw")
+region = Rect2(0, 0, 38, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kq5qu"]
+atlas = ExtResource("3_syhpw")
+region = Rect2(38, 0, 38, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qodc1"]
+atlas = ExtResource("3_syhpw")
+region = Rect2(76, 0, 38, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o8cuu"]
+atlas = ExtResource("3_syhpw")
+region = Rect2(114, 0, 38, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ltef1"]
+atlas = ExtResource("5_ukt74")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ra1w"]
+atlas = ExtResource("5_ukt74")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0hsy0"]
+atlas = ExtResource("5_ukt74")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nwgmf"]
+atlas = ExtResource("5_ukt74")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6uhle"]
+atlas = ExtResource("5_ukt74")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v5020"]
+atlas = ExtResource("5_ukt74")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4mnj5"]
+atlas = ExtResource("4_iw0m1")
+region = Rect2(0, 0, 38, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0relc"]
+atlas = ExtResource("4_iw0m1")
+region = Rect2(38, 0, 38, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v15eo"]
+atlas = ExtResource("4_iw0m1")
+region = Rect2(76, 0, 38, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fjneb"]
+atlas = ExtResource("4_iw0m1")
+region = Rect2(114, 0, 38, 38)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_kq5qu"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_iw0m1")
+}],
+"loop": false,
+"name": &"crouch",
+"speed": 120.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_22lsi")
+}],
+"loop": false,
+"name": &"default",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ukt74")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kq5qu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qodc1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o8cuu")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ltef1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1ra1w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0hsy0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nwgmf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6uhle")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v5020")
+}],
+"loop": false,
+"name": &"shoot",
+"speed": 15.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4mnj5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0relc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v15eo")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fjneb")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 15.0
+}]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hqtel"]
 properties/0/path = NodePath(".:position")
@@ -28,12 +160,14 @@ properties/3/replication_mode = 2
 [node name="Botini" type="CharacterBody2D" unique_id=1703312197]
 script = ExtResource("1_5mest")
 
-[node name="Sprite" type="Sprite2D" parent="." unique_id=837012661]
-texture_filter = 1
-texture = ExtResource("2_ktxuw")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1316652598]
+sprite_frames = SubResource("SpriteFrames_kq5qu")
+animation = &"crouch"
+autoplay = "idle"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=751701469]
-shape = SubResource("CapsuleShape2D_onrkg")
+[node name="CollisionShape2D" type="CollisionPolygon2D" parent="." unique_id=2041524113]
+position = Vector2(0, 2)
+polygon = PackedVector2Array(-6, -15, -5, -16, 5, -16, 6, -15, 7, -14, 7, -8, 6, -7, 5, -6, 5, -5, 9, -2, 9, 1, 5, 13, 4, 16, 2, 17, -2, 17, -4, 16, -5, 13, -5, 8, -10, 3, -10, -2, -7, -5, -5, -6, -5, -6, -6, -7, -7, -8, -7, -13.936223)
 
 [node name="Health" type="Node" parent="." unique_id=1032959831]
 script = ExtResource("3_yetl1")
@@ -41,13 +175,15 @@ script = ExtResource("3_yetl1")
 [node name="Attack" type="Node" parent="." unique_id=1898158667]
 script = ExtResource("4_yetl1")
 projectile_scene = ExtResource("5_2j76h")
-projectile_speed = 360.0
+projectile_speed = 400.0
 knockback_force = 420.0
-cooldown = 0.45
+cooldown = 0.33
 damage = 5
 
-[node name="Dash" type="Node" parent="." unique_id=761573989]
+[node name="Dash" type="Node" parent="." unique_id=761573989 node_paths=PackedStringArray("player")]
 script = ExtResource("5_foj6h")
+player = NodePath("..")
+input_key = &"ui_accept"
 cooldown = 0.45
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1040714569]

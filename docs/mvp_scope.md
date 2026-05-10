@@ -29,7 +29,9 @@ Ship a playable online loop where players can host a match, rotate the Botato ro
 - 8-direction aim (hold-to-lock, release-to-fire)
 
 ### Abilities (one each)
-- Primary attack: **Projectile only**
+- Primary attack:
+	Botini: **Projectile**
+	Botato: **Beam**
 - Mobility: **Dash** (8-directional)
 - Damage, knockback, and cooldown stats per ability
 - Hit detection on characters and terrain
@@ -50,7 +52,7 @@ Ship a playable online loop where players can host a match, rotate the Botato ro
 - Secondary attack slot
 - Special abilities (trap, reflective shield, summon)
 - Rocket jump
-- Beam, melee, and AoE attack types
+- Melee and AoE attack types
 - Customizable pre-match loadouts
 
 ### Systems & polish

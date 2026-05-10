@@ -19,11 +19,13 @@ config/icon="res://icon.svg"
 
 Lobby="*uid://cx0ghlgairqx8"
 _mcp_game_helper="*res://addons/godot_ai/runtime/game_helper.gd"
+TileRunInstancesGlobal="*uid://b6fg6pu2bfi14"
 
 [display]
 
 window/size/viewport_width=960
 window/size/viewport_height=540
+window/size/initial_position_type=0
 window/stretch/mode="viewport"
 window/stretch/scale_mode="integer"
 
@@ -33,7 +35,7 @@ project/assembly_name="Botesitos"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot_ai/plugin.cfg", "res://addons/tile-run-instances/plugin.cfg")
 
 [input]
 

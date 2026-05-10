@@ -1,3 +1,4 @@
+class_name Player
 extends CharacterBody2D
 
 const EXPLOSION_SCENE = preload("uid://2f8twwxlgbxf")
@@ -10,8 +11,8 @@ enum TEAM { BOTINI, BOTATO }
 var facing_right: bool = true:
 	set(value):
 		facing_right = value
-		if is_inside_tree() and sprite:
-			sprite.flip_h = not value
+		if is_inside_tree() and animation:
+			animation.flip_h = not value
 var is_alive: bool = true
 
 # Set by game.gd before add_child
@@ -27,17 +28,19 @@ var gravity_scale: float = 1.0
 
 # private input state
 var _jump_req:  bool  = false
+var _crouch_req:  bool  = false
 var _dash_req:  bool  = false
 var _atk_req:   bool  = false
-var _input_dir: float = 0.0
+var input_dir: float = 0.0
 
 var coyote_timer: float = 0.0
 
 # node refs
-@onready var sprite = $Sprite
 @onready var health: Health = $Health
 @onready var attack: Attack = $Attack
 @onready var dash:   Dash = $Dash
+@onready var animation = $AnimatedSprite2D
+
 
 func _enter_tree() -> void:
 	peer_id = int(name)
@@ -61,9 +64,9 @@ func _physics_process(delta: float) -> void:
 	_update_facing()
 	
 func _gather_input() -> void:
-	_input_dir = Input.get_axis("ui_left", "ui_right")
+	input_dir = Input.get_axis("ui_left", "ui_right")
 	_jump_req  = Input.is_action_just_pressed("ui_up")
-	_dash_req  = Input.is_action_just_pressed("ui_accept")
+	_crouch_req  = Input.is_action_pressed("ui_down")
 	_atk_req   = Input.is_action_just_pressed("attack")
 
 func _apply_gravity(delta: float) -> void:
@@ -81,26 +84,38 @@ func _handle_jump() -> void:
 
 func _handle_dash() -> void:
 	if _dash_req:
-		var dir := Vector2(_input_dir if _input_dir != 0.0 else (1.0 if facing_right else -1.0), 0.0)
+		var dir := Vector2(input_dir if input_dir != 0.0 else (1.0 if facing_right else -1.0), 0.0)
 		dash.try_dash(dir)
 	_dash_req = false
 	if dash.is_dashing:
 		velocity = dash.apply_dash_velocity(velocity)
+	
 
 func _handle_movement(delta: float) -> void:
-	if dash.is_dashing: return
+	if dash.is_dashing:
+		return
 	var speed := move_speed
 	var control := 1.0
-	velocity.x = move_toward(velocity.x, _input_dir * speed, speed * control * delta * 12.0)
+	velocity.x = move_toward(velocity.x, input_dir * speed, speed * control * delta * 12.0)
 
 func _handle_attack() -> void:
 	if _atk_req:
+		animation.play("shoot")
 		attack.try_attack(Vector2(1.0 if facing_right else -1.0, 0.0))
 	_atk_req = false
 
 func _update_facing() -> void:
-	if   velocity.x >  5.0: facing_right = true
-	elif velocity.x < -5.0: facing_right = false
+	if velocity.x >  5.0:
+		facing_right = true
+		animation.play("walk")
+	elif velocity.x < -5.0:
+		facing_right = false
+		animation.play("walk")
+	else:
+		if _crouch_req:
+			animation.play("crouch")
+		else:
+			animation.play("idle")
 	
 # --- Network ---
 
@@ -110,22 +125,25 @@ func _update_facing() -> void:
 func receive_damage(amount: int, direction: Vector2, knockback: float) -> void:
 	if not is_alive:
 		return
-	health.take_damage(amount)
 	_rpc_play_damage_effects.rpc(direction)
 	if is_multiplayer_authority():
 		velocity += (direction * knockback)
 		velocity.y -= knockback / 4.0
+	health.take_damage(amount)
 		
 @rpc("any_peer", "call_local", "reliable")
 func set_alive(alive: bool) -> void:
-	if multiplayer.get_remote_sender_id() != 1: return
+	if multiplayer.get_remote_sender_id() != 1:
+		return
 	is_alive = alive
 	visible = alive
 	if not alive: velocity = Vector2.ZERO
 
 @rpc("any_peer", "call_local", "reliable")
 func respawn(pos: Vector2) -> void:
-	if multiplayer.get_remote_sender_id() != 1: return
+	if multiplayer.get_remote_sender_id() != 1:
+		push_error("Something went wrong!")
+		return
 	global_position = pos
 	velocity = Vector2.ZERO
 	is_alive = true
@@ -143,8 +161,8 @@ func _rpc_play_damage_effects(hit_direction: Vector2):
 	var tween = create_tween()
 	# Flash 3 times
 	for i in range(3):
-		tween.tween_property(sprite, "modulate", Color.RED, 0.07)
-		tween.tween_property(sprite, "modulate", Color.WHITE, 0.07)
+		tween.tween_property(animation, "modulate", Color.RED, 0.07)
+		tween.tween_property(animation, "modulate", Color.WHITE, 0.07)
 	
 # --- Internal call-backs ---
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://i0dhj2kptp6i"
-path="res://.godot/imported/botato.png-37b7bbca1e3431973e226df52f6b92a0.ctex"
+uid="uid://omgwgeau7i2v"
+path="res://.godot/imported/default.png-bcbd621e1a3f0eda345eb82e4f94db5c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/botato.png"
-dest_files=["res://.godot/imported/botato.png-37b7bbca1e3431973e226df52f6b92a0.ctex"]
+source_file="res://assets/botini/default.png"
+dest_files=["res://.godot/imported/default.png-bcbd621e1a3f0eda345eb82e4f94db5c.ctex"]
 
 [params]
 

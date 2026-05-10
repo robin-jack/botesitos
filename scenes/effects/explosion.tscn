@@ -57,7 +57,7 @@ animations = [{
 }],
 "loop": false,
 "name": &"default",
-"speed": 20.0
+"speed": 24.0
 }]
 
 [node name="Explosion" type="AnimatedSprite2D" unique_id=1831975635]
