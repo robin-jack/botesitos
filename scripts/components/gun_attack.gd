@@ -1,7 +1,6 @@
 class_name GunAttack
 extends Attack
 
-@export var projectile_scene: PackedScene
 ## Node path to the spawn point (relative to owner); falls back to owner position
 @export var spawn_point_path: NodePath = NodePath("")
 

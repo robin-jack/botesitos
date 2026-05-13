@@ -15,10 +15,10 @@ var is_ready: bool = true
 var _cooldown_timer: float = 0.0
 
 ## Reference to the owning character (set in _ready)
-var owner_character: CharacterBody2D
+var owner_character: Player
 
 func _ready() -> void:
-	owner_character = get_parent() as CharacterBody2D
+	owner_character = get_parent() as Player
 
 
 func _process(delta: float) -> void:
@@ -32,7 +32,7 @@ func _process(delta: float) -> void:
 			cooldown_updated.emit(1.0)
 
 
-# ── Public API ────────────────────────────────────────────────────────────────
+# --- Public API ---
 
 ## Call this from the owning character's input handler (authority peer only).
 ## Returns true if the attack fired.
@@ -56,7 +56,7 @@ func reset() -> void:
 	_cooldown_timer = 0.0
 
 
-# ── Override in subclasses ────────────────────────────────────────────────────
+# --- Override in subclasses ---
 
 ## Override this in subclasses to implement specific attack behaviour.
 func _perform_attack(_direction: Vector2) -> void:

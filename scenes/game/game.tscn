@@ -7,6 +7,9 @@
 [node name="Game" type="Node2D" unique_id=390760802]
 script = ExtResource("1_80nbo")
 
+[node name="CombatManager" type="Node" parent="." unique_id=313060319]
+script = ExtResource("3_kelw5")
+
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1082047394]
 offset_left = -246.0
 offset_top = -28.0
@@ -84,6 +87,3 @@ offset_top = 47.0
 offset_right = 1168.0
 offset_bottom = 78.0
 text = "STOP"
-
-[node name="CombatManager" type="Node" parent="." unique_id=313060319]
-script = ExtResource("3_kelw5")

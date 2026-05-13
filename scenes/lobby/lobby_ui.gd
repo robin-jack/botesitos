@@ -26,7 +26,7 @@ func _ready() -> void:
 	
 	if OS.has_feature("hoster"):
 		_on_host_pressed()
-	else:
+	elif OS.has_feature("client"):
 		_on_join_pressed.call_deferred()
 
 

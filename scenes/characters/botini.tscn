@@ -7,9 +7,9 @@
 [ext_resource type="Script" uid="uid://c3hchdb57bq4w" path="res://scripts/components/health.gd" id="3_yetl1"]
 [ext_resource type="Texture2D" uid="uid://dsycf30uk5unf" path="res://assets/botini/walk.png" id="4_iw0m1"]
 [ext_resource type="Script" uid="uid://eomwl72h5mdg" path="res://scripts/components/gun_attack.gd" id="4_yetl1"]
-[ext_resource type="PackedScene" uid="uid://b8mmf48321hp" path="res://scenes/projectiles/bullet.tscn" id="5_2j76h"]
 [ext_resource type="Script" uid="uid://bl7vivnd2isdp" path="res://scripts/components/dash.gd" id="5_foj6h"]
 [ext_resource type="Texture2D" uid="uid://drccbn8u1lm2p" path="res://assets/botini/shoot.png" id="5_ukt74"]
+[ext_resource type="AudioStream" uid="uid://c5kv03cnemoyx" path="res://assets/sounds/blaster_2f.mp3" id="10_iw0m1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ukt74"]
 atlas = ExtResource("3_syhpw")
@@ -169,6 +169,9 @@ autoplay = "idle"
 position = Vector2(0, 2)
 polygon = PackedVector2Array(-6, -15, -5, -16, 5, -16, 6, -15, 7, -14, 7, -8, 6, -7, 5, -6, 5, -5, 9, -2, 9, 1, 5, 13, 4, 16, 2, 17, -2, 17, -4, 16, -5, 13, -5, 8, -10, 3, -10, -2, -7, -5, -5, -6, -5, -6, -6, -7, -7, -8, -7, -13.936223)
 
+[node name="ShootSound" type="AudioStreamPlayer2D" parent="." unique_id=1831715846]
+stream = ExtResource("10_iw0m1")
+
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1149933748]
 enabled = false
 limit_left = -239
@@ -181,7 +184,6 @@ script = ExtResource("3_yetl1")
 
 [node name="Attack" type="Node" parent="." unique_id=1898158667]
 script = ExtResource("4_yetl1")
-projectile_scene = ExtResource("5_2j76h")
 cooldown = 0.33
 damage = 5
 

@@ -42,7 +42,9 @@ var _game: Node2D
 @onready var attack: Attack = $Attack
 @onready var dash:   Dash = $Dash
 @onready var animation: AnimatedSprite2D = $AnimatedSprite2D
+@onready var shoot_sound = $ShootSound
 @onready var camera = $Camera2D
+
 
 
 func _enter_tree() -> void:
@@ -108,7 +110,6 @@ func _handle_movement(delta: float) -> void:
 
 func _handle_attack() -> void:
 	if _atk_req:
-		animation.play("shoot")
 		var dir := Vector2(input_dir if input_dir != 0.0 else (1.0 if facing_dir else -1.0), 0.0)
 		velocity -= dir * 200
 		attack.try_attack(Vector2(1.0 if facing_dir else -1.0, 0.0))
@@ -183,6 +184,8 @@ func _on_died() -> void:
 		set_alive.rpc(false)
 
 func _on_attack_executed(data: Dictionary) -> void:
+	animation.play("shoot")
+	shoot_sound.play()
 	if multiplayer.is_server():
 		_game.combat_manager.spawn_attack(data)
 	else:

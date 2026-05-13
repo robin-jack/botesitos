@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://i0dhj2kptp6i"
-path="res://.godot/imported/botato.png-37b7bbca1e3431973e226df52f6b92a0.ctex"
+path="res://.godot/imported/botato.png-2a18ccd4eeb0513a1225e41fbbaae4ea.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/botato.png"
-dest_files=["res://.godot/imported/botato.png-37b7bbca1e3431973e226df52f6b92a0.ctex"]
+source_file="res://assets/botato/botato.png"
+dest_files=["res://.godot/imported/botato.png-2a18ccd4eeb0513a1225e41fbbaae4ea.ctex"]
 
 [params]
 

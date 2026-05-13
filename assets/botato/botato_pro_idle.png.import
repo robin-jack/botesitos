@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b1la06u8qkj65"
-path="res://.godot/imported/botato_pro_idle.png-a727182375c624714fe4604f5bc99eaa.ctex"
+path="res://.godot/imported/botato_pro_idle.png-13bee7ba86be287c19b71f21c7c50700.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/botato_pro_idle.png"
-dest_files=["res://.godot/imported/botato_pro_idle.png-a727182375c624714fe4604f5bc99eaa.ctex"]
+source_file="res://assets/botato/botato_pro_idle.png"
+dest_files=["res://.godot/imported/botato_pro_idle.png-13bee7ba86be287c19b71f21c7c50700.ctex"]
 
 [params]
 
