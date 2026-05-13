@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://blclk2bqfqh3k" path="res://scenes/game/game.gd" id="1_80nbo"]
 [ext_resource type="TileSet" uid="uid://lxd08dgpxla" path="res://assets/tile_set.tres" id="3_0sr1o"]
+[ext_resource type="Script" uid="uid://uq58bou4oq8v" path="res://scripts/combat/combat_manager.gd" id="3_kelw5"]
 
 [node name="Game" type="Node2D" unique_id=390760802]
 script = ExtResource("1_80nbo")
@@ -83,3 +84,6 @@ offset_top = 47.0
 offset_right = 1168.0
 offset_bottom = 78.0
 text = "STOP"
+
+[node name="CombatManager" type="Node" parent="." unique_id=313060319]
+script = ExtResource("3_kelw5")

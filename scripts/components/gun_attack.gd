@@ -20,10 +20,11 @@ func _perform_attack(direction: Vector2) -> void:
 
 	# Build attack data for the server spawn request
 	var attack_data := {
-		"type": "projectile",
+		"attack_id": "gun_attack",
 		"position": spawn_pos,
 		"direction": direction,
+		"rotation": direction.angle(),
 		"owner_id": owner_character.get_multiplayer_authority(),
-		"team": owner_character.get("team"),  # "players" or "boss"
+		"team": owner_character.get("team"),
 	}
 	attack_executed.emit(attack_data)
