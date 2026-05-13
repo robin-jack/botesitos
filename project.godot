@@ -25,7 +25,6 @@ TileRunInstancesGlobal="*uid://b6fg6pu2bfi14"
 
 window/size/viewport_width=960
 window/size/viewport_height=540
-window/size/initial_position_type=0
 window/stretch/mode="viewport"
 window/stretch/scale_mode="integer"
 

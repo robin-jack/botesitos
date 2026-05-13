@@ -8,14 +8,12 @@ signal dash_started(direction: Vector2)
 signal dash_ended
 signal cooldown_finished
 
-@export var player: Player
 @export var input_key: StringName
 @export var dash_speed: float = 520.0
 @export var dash_duration: float = 0.13
 @export var cooldown: float = 1.2
 @export var invincible_during_dash: bool = true
 
-var _dash_req: bool = false
 var is_dashing: bool = false
 var is_on_cooldown: bool = false
 var can_dash: bool = true:
@@ -25,17 +23,7 @@ var _dash_timer: float = 0.0
 var _cooldown_timer: float = 0.0
 var _dash_direction: Vector2 = Vector2.RIGHT
 
-func _physics_process(_delta):
-	_dash_req  = Input.is_action_just_pressed(input_key)
-	if Input.is_action_just_pressed(input_key):
-		var dir := Vector2(player.input_dir if player.input_dir != 0.0 \
-											else (1.0 if player.facing_right else -1.0), 0.0)
-		try_dash(dir)
-	_dash_req = false
-	if is_dashing:
-		player.velocity = apply_dash_velocity(player.velocity)
-
-func _process(delta: float) -> void:
+func update(delta: float) -> void:
 	
 	if is_dashing:
 		_dash_timer -= delta

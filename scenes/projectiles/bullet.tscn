@@ -3,8 +3,30 @@
 [ext_resource type="Script" uid="uid://cmo7wsqa815ja" path="res://scenes/projectiles/bullet.gd" id="1_v7oki"]
 [ext_resource type="Texture2D" uid="uid://dggsywha0vj4" path="res://assets/bullet.png" id="2_48g2p"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_48g2p"]
+atlas = ExtResource("2_48g2p")
+region = Rect2(0, 0, 24, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k5ji7"]
+atlas = ExtResource("2_48g2p")
+region = Rect2(24, 0, 24, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_i2bxc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_48g2p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k5ji7")
+}],
+"loop": true,
+"name": &"default",
+"speed": 12.0
+}]
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v7oki"]
-size = Vector2(6, 4)
+size = Vector2(18, 4)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_48g2p"]
 properties/0/path = NodePath(".:position")
@@ -23,8 +45,10 @@ properties/3/replication_mode = 0
 [node name="Bullet" type="Area2D" unique_id=1744493566]
 script = ExtResource("1_v7oki")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=981862752]
-texture = ExtResource("2_48g2p")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1653935369]
+sprite_frames = SubResource("SpriteFrames_i2bxc")
+autoplay = "default"
+frame_progress = 0.13333192
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2056082964]
 shape = SubResource("RectangleShape2D_v7oki")

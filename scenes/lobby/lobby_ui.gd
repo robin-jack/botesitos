@@ -23,6 +23,11 @@ func _ready() -> void:
 	Lobby.player_connected.connect(_on_player_connected)
 	Lobby.connection_failed.connect(_on_connection_failed)
 	Lobby.server_disconnected.connect(_on_server_disconnected)
+	
+	if OS.has_feature("hoster"):
+		_on_host_pressed()
+	else:
+		_on_join_pressed.call_deferred()
 
 
 # --- Button handlers ---
@@ -35,6 +40,7 @@ func _on_host_pressed() -> void:
 		return
 	# create_game() emits player_connected(1, …) synchronously,
 	# so _on_player_connected handles the scene change below.
+	print_debug("Host session here")
 
 
 func _on_join_pressed() -> void:
@@ -51,7 +57,6 @@ func _on_join_pressed() -> void:
 	status_label.text  = "Connecting to %s…" % ip
 	host_button.disabled = true
 	join_button.disabled = true
-
 
 # --- Lobby signal handlers ---
 

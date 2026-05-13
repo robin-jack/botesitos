@@ -8,9 +8,15 @@ const LASER_SCENE  = preload("uid://by5n3jobbje87")
 enum TEAM { BOTINI, BOTATO }
 enum Phase { WARMUP, COUNTDOWN, FIGHTING, ROUND_OVER, MATCH_OVER }
 
-@export var total_rounds:          int   = 5
 @export var round_start_countdown: float = 3.0
 @export var round_end_delay:       float = 2.5
+
+# Mirrors the actual match length logic (one boss turn per connected player).
+var total_rounds: int:
+	get:
+		if _boss_rotation.size() > 0:
+			return _boss_rotation.size()
+		return Lobby.players.size()
 
 # Server-side state
 var _phase:               Phase = Phase.WARMUP
@@ -38,6 +44,7 @@ var botinis_peer_ids: Array = []
 
 
 func _ready() -> void:
+	add_to_group("game")
 	# Only the server manages game state and spawns players.
 	if multiplayer.is_server():
 		for pid: int in Lobby.players:
@@ -64,7 +71,7 @@ func _on_lobby_player_connected(pid: int, _info: Dictionary) -> void:
 
 func _on_lobby_player_disconnected(pid: int) -> void:
 	if players.has(pid):
-		var player_node: Node = players[pid]
+		var player_node: Player = players[pid]
 		if is_instance_valid(player_node):
 			if player_node.get_parent():
 				player_node.get_parent().remove_child(player_node)
@@ -149,7 +156,7 @@ func _process_warmup_respawns(delta: float) -> void:
 		if _warmup_respawn_timers[pid] <= 0.0:
 			done.append(pid)
 			var player_node: Player = players.get(pid)
-			if is_instance_valid(Player):
+			if is_instance_valid(player_node):
 				var sp = spawn_points[randi() % spawn_points.size()]
 				player_node.respawn.rpc(sp.global_position)
 	for pid: int in done:
@@ -361,6 +368,30 @@ func spawn_projectile(data: Dictionary) -> void:
 func request_spawn_projectile(data: Dictionary) -> void:
 	if not multiplayer.is_server():
 		return
+	var sender := multiplayer.get_remote_sender_id()
+	if data.get("owner_id") != sender:
+		return
+	var p: Player = players.get(sender)
+	if not is_instance_valid(p) or not p.is_alive:
+		return
+	var atk: GunAttack = p.get_node_or_null("Attack")
+	if atk == null:
+		return
+
+	# Server rebuilds projectile data from authoritative player state
+	var dir: Vector2 = data.get("direction", Vector2.RIGHT)
+	dir = dir.normalized()
+	if dir == Vector2.ZERO:
+		dir = Vector2.RIGHT if p.facing_dir else Vector2.LEFT
+
+	data["position"] = p.global_position + dir * 14.0
+	data["direction"] = dir
+	data["speed"] = atk.projectile_speed
+	data["damage"] = atk.damage
+	data["knockback"] = atk.knockback_force
+	data["owner_id"] = sender
+	data["team"] = p.team
+
 	spawn_projectile(data)
 
 

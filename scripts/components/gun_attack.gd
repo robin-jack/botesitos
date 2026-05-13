@@ -1,14 +1,7 @@
 class_name GunAttack
 extends Attack
 
-## Fires a projectile in the given direction.
-## Requests the server to spawn the projectile via RPC.
-
-## Path to the projectile scene
 @export var projectile_scene: PackedScene
-@export var projectile_speed: float = 340.0
-@export var knockback_force: float = 220.0
-
 ## Node path to the spawn point (relative to owner); falls back to owner position
 @export var spawn_point_path: NodePath = NodePath("")
 
@@ -30,13 +23,7 @@ func _perform_attack(direction: Vector2) -> void:
 		"type": "projectile",
 		"position": spawn_pos,
 		"direction": direction,
-		"speed": projectile_speed,
-		"damage": damage,
-		"knockback": knockback_force,
 		"owner_id": owner_character.get_multiplayer_authority(),
 		"team": owner_character.get("team"),  # "players" or "boss"
 	}
 	attack_executed.emit(attack_data)
-
-	# Request the server to spawn — game.gd listens to this signal
-	# (Works even for the authority peer because signals are local)

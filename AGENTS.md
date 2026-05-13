@@ -9,7 +9,7 @@ Godot 4.6.1 stable, GDScript, 2D asymmetric multiplayer platformer-shooter (serv
 
 ## Architecture
 
-- **Server-authoritative**: all state decisions (health, score, spawns, phase transitions) live in `game.gd` on the host. Clients only send inputs and RPC requests.
+- **MVP authority split**: the server is authoritative for the 4 MVP-critical points — **health/death**, **score**, **spawns**, and **phase transitions**. Clients send inputs/RPC requests and drive local movement/ability intent.
 - **Shared character script**: `scenes/characters/botini.tscn` and `scenes/characters/botato.tscn` both use `scenes/characters/botini.gd` (`class_name Player`). The boss is differentiated purely by scene exports: larger collision shape, `botato.png`, and higher `max_health` (default 50 vs 10). **Do not create a separate boss script.**
 - **Components**: reusable logic nodes under `scripts/components/` — `Health`, `Attack`, `Dash`, `GunAttack`. Characters are `CharacterBody2D` with these children.
 
@@ -33,7 +33,7 @@ Godot 4.6.1 stable, GDScript, 2D asymmetric multiplayer platformer-shooter (serv
 ## Current character implementation vs MVP design
 
 The docs (`docs/GDD.md`, `docs/mvp_scope.md`) describe target mechanics that are **not yet fully implemented** in `botini.gd`:
-- **Aiming**: MVP requires 8-direction aim (hold-to-lock, release-to-fire). Current code fires only in the facing direction (`Vector2(1.0 if facing_right else -1.0, 0.0)`). Do not assume 8-way aiming exists.
+- **Aiming**: MVP requires 8-direction aim (hold-to-lock, release-to-fire). Current code fires only in the facing direction (`Vector2(1.0 if facing_dir else -1.0, 0.0)`). Do not assume 8-way aiming exists.
 - **Dash**: MVP requires 8-directional dash. Current dash only supports horizontal (`dir.x = input_dir ...`). Expanding this requires changing `_handle_dash()` and the `Dash` component.
 - **Beam**: Botato's primary attack should be a beam. `game.gd` already spawns `LASER_SCENE` when `data.type == "laser"`, but the charge-phase UI and attack indicator are out of MVP scope. If implementing the beam, reuse the existing laser projectile path.
 
