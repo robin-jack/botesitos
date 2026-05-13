@@ -2,9 +2,6 @@ extends Node2D
 
 const BOTINI_SCENE = preload("uid://cfxvxpnwen2eq")
 const BOSS_SCENE   = preload("uid://df6cjrmb84qw7")
-const BULLET_SCENE = preload("uid://b8mmf48321hp")
-const LASER_SCENE  = preload("uid://by5n3jobbje87")
-
 enum TEAM { BOTINI, BOTATO }
 enum Phase { WARMUP, COUNTDOWN, FIGHTING, ROUND_OVER, MATCH_OVER }
 
@@ -37,6 +34,7 @@ var botinis_peer_ids: Array = []
 
 @onready var players_container:     Node2D = $Players
 @onready var projectiles_container: Node2D = $Projectiles
+@onready var combat_manager:        CombatManager = $CombatManager
 @onready var spawn_points:          Array  = $SpawnPoints.get_children()
 @onready var _countdown_label:      Label  = $UI/CountdownLabel
 @onready var start_button:          Button = $UI/StartButton
@@ -45,6 +43,8 @@ var botinis_peer_ids: Array = []
 
 func _ready() -> void:
 	add_to_group("game")
+	combat_manager.players = players
+	combat_manager.projectiles_container = $Projectiles
 	# Only the server manages game state and spawns players.
 	if multiplayer.is_server():
 		for pid: int in Lobby.players:
@@ -341,58 +341,6 @@ func _on_player_died(pid: int) -> void:
 	elif _phase == Phase.FIGHTING:
 		_check_round_end()
 
-
-# --- Projectile spawning ---
-
-func spawn_projectile(data: Dictionary) -> void:
-	if not multiplayer.is_server():
-		return
-	var ptype: String = data.get("type", "projectile")
-	var projectile: Node2D
-
-	if ptype == "laser":
-		if not LASER_SCENE:
-			return
-		projectile = LASER_SCENE.instantiate()
-	else:
-		if not BULLET_SCENE:
-			return
-		projectile = BULLET_SCENE.instantiate()
-
-	projectile.name = "%s_%d" % [ptype.capitalize(), Time.get_ticks_msec()]
-	projectile.setup(data)
-	projectiles_container.add_child(projectile, true)
-
-
-@rpc("any_peer", "reliable")
-func request_spawn_projectile(data: Dictionary) -> void:
-	if not multiplayer.is_server():
-		return
-	var sender := multiplayer.get_remote_sender_id()
-	if data.get("owner_id") != sender:
-		return
-	var p: Player = players.get(sender)
-	if not is_instance_valid(p) or not p.is_alive:
-		return
-	var atk: GunAttack = p.get_node_or_null("Attack")
-	if atk == null:
-		return
-
-	# Server rebuilds projectile data from authoritative player state
-	var dir: Vector2 = data.get("direction", Vector2.RIGHT)
-	dir = dir.normalized()
-	if dir == Vector2.ZERO:
-		dir = Vector2.RIGHT if p.facing_dir else Vector2.LEFT
-
-	data["position"] = p.global_position + dir * 14.0
-	data["direction"] = dir
-	data["speed"] = atk.projectile_speed
-	data["damage"] = atk.damage
-	data["knockback"] = atk.knockback_force
-	data["owner_id"] = sender
-	data["team"] = p.team
-
-	spawn_projectile(data)
 
 
 # --- Server → all clients RPCs ---

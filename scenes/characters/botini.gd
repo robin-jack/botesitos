@@ -184,6 +184,6 @@ func _on_died() -> void:
 
 func _on_attack_executed(data: Dictionary) -> void:
 	if multiplayer.is_server():
-		_game.spawn_projectile(data)
+		_game.combat_manager.spawn_attack(data)
 	else:
-		_game.request_spawn_projectile.rpc_id(1, data)
+		_game.combat_manager.request_attack.rpc_id(1, data)

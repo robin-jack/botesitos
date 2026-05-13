@@ -37,16 +37,13 @@ func setup(data: Dictionary) -> void:
 	direction       = data.get("direction", Vector2.RIGHT).normalized()
 	owner_peer_id   = data.get("owner_id",  -1)
 	owner_team      = data.get("team",      TEAM.BOTINI)
-	rotation        = direction.angle()
+	rotation        = data.get("rotation",  direction.angle())
 
 func _on_body_entered(body: Node) -> void:
-	print("bongo bango")
 	if not _alive:
 		return
 	if body.get("team") == owner_team:
 		return
-	if body.get("type") == "terrain":
-		print("bongo bango")
 	_apply_hit(body)
 
 func _apply_hit(target: Node) -> void:

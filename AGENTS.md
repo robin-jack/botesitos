@@ -17,7 +17,7 @@ Godot 4.6.1 stable, GDScript, 2D asymmetric multiplayer platformer-shooter (serv
 
 - **Authority derived from node name**: `botini.gd` does `peer_id = int(name)` and `set_multiplayer_authority(peer_id)` inside `_enter_tree()`. **Never rename a character node after it enters the tree** or multiplayer authority breaks.
 - **RPC pattern**: most RPCs are declared `@rpc("any_peer", "call_local", "reliable")` but immediately guarded with `if not multiplayer.is_server(): return`. Do not remove the server guard; the `"any_peer"` mode is required so the server can call the RPC on all peers.
-- **Projectile spawning**: clients call `game.request_spawn_projectile.rpc_id(1, data)`; the server validates and spawns. The `data` Dictionary must include keys: `type`, `position`, `direction`, `speed`, `damage`, `knockback`, `owner_id`, `team`.
+- **Projectile spawning**: characters emit attack intent. Clients call `CombatManager.request_attack.rpc_id(1, data)`. The server validates owner/alive/known attack id. Projectile/effect scripts own their own stats. `game.gd` must not branch on attack type.
 
 ## Game loop & phases (`game.gd`)
 
@@ -39,9 +39,9 @@ The docs (`docs/GDD.md`, `docs/mvp_scope.md`) describe target mechanics that are
 
 ## Components & projectiles
 
-- `Attack` emits `attack_executed(data: Dictionary)`; `botini.gd` forwards this to `game.gd`.
+- `Attack` emits `attack_executed(data: Dictionary)`; `botini.gd` forwards this to `CombatManager`.
 - `Health` emits `died`; `botini.gd` calls `set_alive.rpc(false)`.
-- Projectiles live in `scenes/projectiles/` (`bullet.gd`, `laser.gd`). They are spawned server-side into `game.gd`'s `$Projectiles` container.
+- Projectiles live in `scenes/projectiles/` (`bullet.gd`, `laser.gd`). They are spawned server-side into `CombatManager`'s `$Projectiles` container.
 
 ## Scene spawning config
 
