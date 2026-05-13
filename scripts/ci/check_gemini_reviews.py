@@ -49,14 +49,33 @@ class GitHubAPI:
         self.base_url = "https://api.github.com"
 
     def get(self, endpoint: str) -> Optional[Any]:
+        """
+        GET an endpoint from the GitHub API.
+        If the response is a list, automatically follow pagination via Link headers
+        and return the aggregated list.
+        """
         url = f"{self.base_url}{endpoint}" if not endpoint.startswith("http") else endpoint
-        try:
-            resp = self.session.get(url, timeout=30)
-            resp.raise_for_status()
-            return resp.json()
-        except requests.RequestException as e:
-            print(f"API error: {e}", file=sys.stderr)
-            return None
+        all_data: list[Any] = []
+
+        while url:
+            try:
+                resp = self.session.get(url, timeout=30)
+                resp.raise_for_status()
+                data = resp.json()
+                if not isinstance(data, list):
+                    return data
+                all_data.extend(data)
+                url = None
+                if "link" in resp.headers:
+                    links = resp.headers["link"].split(",")
+                    for link in links:
+                        if 'rel="next"' in link:
+                            url = link.split(";")[0].strip("<> ")
+            except requests.RequestException as e:
+                print(f"API error: {e}", file=sys.stderr)
+                return None
+
+        return all_data
 
 
 def detect_repo() -> tuple[str, str]:
@@ -81,72 +100,75 @@ def detect_repo() -> tuple[str, str]:
     return ("", "")
 
 
-def fetch_comments(gh: GitHubAPI, owner: str, repo: str, pr_number: int) -> list[dict]:
+def fetch_comments(gh: GitHubAPI, owner: str, repo: str, pr_number: int) -> Optional[list[dict]]:
     """
     Fetch all review comments, issue comments, and reviews for a PR.
-    Returns a flat list of comment dicts with unified schema.
+    Returns a flat list of comment dicts with unified schema, or None on error.
     """
     comments: list[dict] = []
 
     # 1. Review comments (inline on diffs)
     review_comments = gh.get(f"/repos/{owner}/{repo}/pulls/{pr_number}/comments")
-    if isinstance(review_comments, list):
-        for c in review_comments:
-            comments.append({
-                "id": c.get("id"),
-                "user": c.get("user", {}).get("login", ""),
-                "body": c.get("body", ""),
-                "path": c.get("path", ""),
-                "line": c.get("line"),
-                "original_line": c.get("original_line"),
-                "commit_id": c.get("commit_id", ""),
-                "created_at": c.get("created_at", ""),
-                "updated_at": c.get("updated_at", ""),
-                "html_url": c.get("html_url", ""),
-                "type": "review_comment",
-                "pull_request_review_id": c.get("pull_request_review_id"),
-            })
+    if review_comments is None:
+        return None
+    for c in review_comments:
+        comments.append({
+            "id": c.get("id"),
+            "user": c.get("user", {}).get("login", ""),
+            "body": c.get("body", ""),
+            "path": c.get("path", ""),
+            "line": c.get("line"),
+            "original_line": c.get("original_line"),
+            "commit_id": c.get("commit_id", ""),
+            "created_at": c.get("created_at", ""),
+            "updated_at": c.get("updated_at", ""),
+            "html_url": c.get("html_url", ""),
+            "type": "review_comment",
+            "pull_request_review_id": c.get("pull_request_review_id"),
+        })
 
     # 2. Issue comments (general PR conversation)
     issue_comments = gh.get(f"/repos/{owner}/{repo}/issues/{pr_number}/comments")
-    if isinstance(issue_comments, list):
-        for c in issue_comments:
-            comments.append({
-                "id": c.get("id"),
-                "user": c.get("user", {}).get("login", ""),
-                "body": c.get("body", ""),
-                "path": None,
-                "line": None,
-                "original_line": None,
-                "commit_id": None,
-                "created_at": c.get("created_at", ""),
-                "updated_at": c.get("updated_at", ""),
-                "html_url": c.get("html_url", ""),
-                "type": "issue_comment",
-                "pull_request_review_id": None,
-            })
+    if issue_comments is None:
+        return None
+    for c in issue_comments:
+        comments.append({
+            "id": c.get("id"),
+            "user": c.get("user", {}).get("login", ""),
+            "body": c.get("body", ""),
+            "path": None,
+            "line": None,
+            "original_line": None,
+            "commit_id": None,
+            "created_at": c.get("created_at", ""),
+            "updated_at": c.get("updated_at", ""),
+            "html_url": c.get("html_url", ""),
+            "type": "issue_comment",
+            "pull_request_review_id": None,
+        })
 
     # 3. Reviews (summary reviews, e.g. "CHANGES_REQUESTED" with body)
     reviews = gh.get(f"/repos/{owner}/{repo}/pulls/{pr_number}/reviews")
-    if isinstance(reviews, list):
-        for r in reviews:
-            body = r.get("body", "")
-            if body:
-                comments.append({
-                    "id": r.get("id"),
-                    "user": r.get("user", {}).get("login", ""),
-                    "body": body,
-                    "path": None,
-                    "line": None,
-                    "original_line": None,
-                    "commit_id": r.get("commit_id", ""),
-                    "created_at": r.get("submitted_at", ""),
-                    "updated_at": r.get("submitted_at", ""),
-                    "html_url": r.get("html_url", ""),
-                    "type": "review",
-                    "state": r.get("state", ""),
-                    "pull_request_review_id": r.get("id"),
-                })
+    if reviews is None:
+        return None
+    for r in reviews:
+        body = r.get("body", "")
+        if body:
+            comments.append({
+                "id": r.get("id"),
+                "user": r.get("user", {}).get("login", ""),
+                "body": body,
+                "path": None,
+                "line": None,
+                "original_line": None,
+                "commit_id": r.get("commit_id", ""),
+                "created_at": r.get("submitted_at", ""),
+                "updated_at": r.get("submitted_at", ""),
+                "html_url": r.get("html_url", ""),
+                "type": "review",
+                "state": r.get("state", ""),
+                "pull_request_review_id": r.get("id"),
+            })
 
     return comments
 
@@ -353,9 +375,8 @@ Examples:
 
     # Also write a human-readable summary if output path is given
     if args.output:
-        summary_path = args.output.replace(".json", "_summary.txt")
-        if summary_path == args.output:
-            summary_path += ".summary.txt"
+        base, _ = os.path.splitext(args.output)
+        summary_path = f"{base}_summary.txt"
         try:
             with open(summary_path, "w", encoding="utf-8") as f:
                 f.write(f"PR #{pr_number} Review Check\n")
