@@ -21,6 +21,9 @@ desktop.ini
 *.swo
 *~
 
+# asesprite
+.asesprite
+
 # Temporary files
 *.tmp
 
