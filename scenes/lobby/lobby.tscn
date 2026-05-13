@@ -125,3 +125,22 @@ grow_vertical = 0
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 10
 text = "Disclaimer: BetaCaca Version for Jonathan"
+
+[node name="EasterEgg" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -18.0
+offset_top = -18.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.15, 0.1, 0.05, 0.35)
+theme_override_font_sizes/font_size = 8
+text = "💩"
+horizontal_alignment = 2
+vertical_alignment = 2
