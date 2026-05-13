@@ -19,7 +19,6 @@ var _timer: float = 0.0
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
-	rotation = direction.angle()
 
 func _physics_process(delta: float) -> void:
 	if not _alive:

@@ -33,6 +33,10 @@ func request_attack(data: Dictionary) -> void:
 	if not ATTACK_SCENES.has(attack_id):
 		return
 
+	# Authoritative overrides (position/direction trusted per MVP assumption)
+	data["owner_id"] = sender
+	data["team"] = player.team
+
 	_do_spawn(data)
 
 
@@ -45,4 +49,5 @@ func _do_spawn(data: Dictionary) -> void:
 	var projectile = scene.instantiate()
 	projectile.name = "%s_%d" % [attack_id.capitalize(), Time.get_ticks_msec()]
 	projectile.setup(data)
-	projectiles_container.add_child(projectile, true)
+	if projectiles_container:
+		projectiles_container.add_child(projectile, true)
