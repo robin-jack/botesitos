@@ -71,3 +71,68 @@ The docs (`docs/GDD.md`, `docs/mvp_scope.md`) describe target mechanics that are
 
 - No unit tests or CI. Verify by running from the Godot editor and testing host/join on `127.0.0.1:58008`.
 - Minimum 2 players required to start a match (enforced server-side in `MatchManager`).
+
+## CI/CD — Gemini PR Review Checker
+
+This repository includes an automated workflow for fetching and acting on **Gemini Code Assist** PR review comments.
+
+### Files
+
+- `scripts/ci/check_gemini_reviews.py` — Python script that polls the GitHub API for PR review comments from Gemini (or any configured bot). Outputs structured JSON + human-readable summary.
+- `.github/workflows/gemini-pr-review-check.yml` — GitHub Actions workflow that runs the script on every PR (open/synchronize) or on-demand via `workflow_dispatch`.
+
+### OpenCode workflow
+
+After raising a PR, OpenCode should **invoke the script autonomously** rather than manually querying with `gh cli`:
+
+1. **Raise the PR** (`gh pr create ...`).
+2. **Run the checker** locally (or let CI trigger it):
+   ```bash
+   pip install requests
+   export GITHUB_TOKEN=<your_pat>
+   python scripts/ci/check_gemini_reviews.py \
+     --pr-number <PR_NUM> \
+     --timeout 300 \
+     --poll-interval 30 \
+     --output gemini_comments.json
+   ```
+3. **Consume the JSON output.** The script returns exit code `0` when comments are found, `1` on timeout/no comments, `2` on error. The JSON schema is:
+   ```json
+   {
+     "pr_number": 4,
+     "status": "found",
+     "comments": [
+       {
+         "id": 123456,
+         "user": "gemini-code-assist",
+         "body": "...",
+         "path": "scripts/match/match_manager.gd",
+         "line": 42,
+         "type": "review_comment",
+         "html_url": "..."
+       }
+     ],
+     "summary": {
+       "total": 3,
+       "action_required": 1,
+       "suggestions": 2
+     }
+   }
+   ```
+4. **Address comments if needed.** OpenCode reads each comment body, maps it to the file/line, and applies fixes.
+5. **Push fixes** and re-run the checker if desired (Gemini may add follow-up comments).
+6. **Report done** once no actionable comments remain.
+
+### Why a script instead of manual `gh` checks?
+
+- **Reduces token usage** — structured JSON is far smaller than full `gh pr view` output.
+- **Faster poll feedback** — the script sleeps between API calls and exits immediately when comments appear, instead of OpenCode repeatedly running CLI commands.
+- **CI/CD native** — the same script runs locally and in GitHub Actions; no behaviour drift.
+
+### GitHub Actions behaviour
+
+- Automatically triggers on `pull_request` (opened / synchronize / reopened).
+- Polls for up to 5 minutes (configurable) with 30-second intervals.
+- Uploads `gemini_comments.json` + `_summary.txt` as workflow artifacts.
+- Posts a summary comment on the PR when finished.
+- Can also be triggered manually via **Actions > Check Gemini PR Review Comments > Run workflow**.
