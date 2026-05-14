@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://blclk2bqfqh3k" path="res://scenes/game/game.gd" id="1_80nbo"]
 [ext_resource type="TileSet" uid="uid://lxd08dgpxla" path="res://assets/tile_set.tres" id="3_0sr1o"]
 [ext_resource type="Script" uid="uid://uq58bou4oq8v" path="res://scripts/combat/combat_manager.gd" id="3_kelw5"]
-[ext_resource type="Script" path="res://scripts/match/match_manager.gd" id="4_match"]
+[ext_resource type="Script" uid="uid://ucg5v3dvqu2p" path="res://scripts/match/match_manager.gd" id="4_match"]
 
 [node name="Game" type="Node2D" unique_id=390760802]
 script = ExtResource("1_80nbo")
@@ -11,7 +11,7 @@ script = ExtResource("1_80nbo")
 [node name="CombatManager" type="Node" parent="." unique_id=313060319]
 script = ExtResource("3_kelw5")
 
-[node name="MatchManager" type="Node" parent="."]
+[node name="MatchManager" type="Node" parent="." unique_id=583824091]
 script = ExtResource("4_match")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1082047394]
@@ -78,16 +78,15 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="StartButton" type="Button" parent="UI" unique_id=1657964578]
-offset_left = 1112.0
-offset_top = 16.0
-offset_right = 1168.0
-offset_bottom = 47.0
+offset_left = 840.0
+offset_top = 32.0
+offset_right = 896.0
+offset_bottom = 63.0
 text = "START"
 
 [node name="StopButton" type="Button" parent="UI" unique_id=1657964579]
-visible = false
-offset_left = 1112.0
-offset_top = 47.0
-offset_right = 1168.0
-offset_bottom = 78.0
+offset_left = 840.0
+offset_top = 63.0
+offset_right = 896.0
+offset_bottom = 94.0
 text = "STOP"

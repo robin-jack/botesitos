@@ -1,77 +1,17 @@
 [gd_scene format=3 uid="uid://df6cjrmb84qw7"]
 
 [ext_resource type="Script" uid="uid://dog07svqs2csb" path="res://scenes/characters/botini.gd" id="1_lc2ma"]
-[ext_resource type="Texture2D" uid="uid://cxx3jjmsw0c3f" path="res://assets/botini/crouch.png" id="2_cbq76"]
-[ext_resource type="Texture2D" uid="uid://omgwgeau7i2v" path="res://assets/botini/default.png" id="3_fbotk"]
+[ext_resource type="Texture2D" uid="uid://i0dhj2kptp6i" path="res://assets/botato/botato.png" id="2_lc2ma"]
 [ext_resource type="Script" uid="uid://c3hchdb57bq4w" path="res://scripts/components/health.gd" id="3_yppj8"]
 [ext_resource type="Script" uid="uid://eomwl72h5mdg" path="res://scripts/components/gun_attack.gd" id="4_314el"]
-[ext_resource type="Texture2D" uid="uid://chwqndii3mi70" path="res://assets/botini/idle.png" id="4_v6221"]
-[ext_resource type="PackedScene" uid="uid://b8mmf48321hp" path="res://scenes/projectiles/bullet.tscn" id="5_cbq76"]
-[ext_resource type="Texture2D" uid="uid://drccbn8u1lm2p" path="res://assets/botini/shoot.png" id="5_fyeyb"]
 [ext_resource type="Script" uid="uid://bl7vivnd2isdp" path="res://scripts/components/dash.gd" id="6_fbotk"]
-[ext_resource type="Texture2D" uid="uid://dsycf30uk5unf" path="res://assets/botini/walk.png" id="6_q51hb"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ukt74"]
-atlas = ExtResource("4_v6221")
-region = Rect2(0, 0, 38, 38)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_kq5qu"]
-atlas = ExtResource("4_v6221")
-region = Rect2(38, 0, 38, 38)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_qodc1"]
-atlas = ExtResource("4_v6221")
-region = Rect2(76, 0, 38, 38)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_o8cuu"]
-atlas = ExtResource("4_v6221")
-region = Rect2(114, 0, 38, 38)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_ltef1"]
-atlas = ExtResource("5_fyeyb")
-region = Rect2(256, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_1ra1w"]
-atlas = ExtResource("5_fyeyb")
-region = Rect2(320, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0hsy0"]
-atlas = ExtResource("5_fyeyb")
-region = Rect2(384, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_nwgmf"]
-atlas = ExtResource("5_fyeyb")
-region = Rect2(192, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_6uhle"]
-atlas = ExtResource("5_fyeyb")
-region = Rect2(128, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_v5020"]
-atlas = ExtResource("5_fyeyb")
-region = Rect2(64, 0, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_4mnj5"]
-atlas = ExtResource("6_q51hb")
-region = Rect2(0, 0, 38, 38)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_0relc"]
-atlas = ExtResource("6_q51hb")
-region = Rect2(38, 0, 38, 38)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_v15eo"]
-atlas = ExtResource("6_q51hb")
-region = Rect2(76, 0, 38, 38)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_fjneb"]
-atlas = ExtResource("6_q51hb")
-region = Rect2(114, 0, 38, 38)
+[ext_resource type="AudioStream" uid="uid://c5kv03cnemoyx" path="res://assets/sounds/blaster_2f.mp3" id="7_cbq76"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_whddt"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_cbq76")
+"texture": ExtResource("2_lc2ma")
 }],
 "loop": false,
 "name": &"crouch",
@@ -79,7 +19,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("3_fbotk")
+"texture": ExtResource("2_lc2ma")
 }],
 "loop": false,
 "name": &"default",
@@ -87,16 +27,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ukt74")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_kq5qu")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_qodc1")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_o8cuu")
+"texture": ExtResource("2_lc2ma")
 }],
 "loop": true,
 "name": &"idle",
@@ -104,22 +35,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_ltef1")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_1ra1w")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_0hsy0")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_nwgmf")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_6uhle")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_v5020")
+"texture": ExtResource("2_lc2ma")
 }],
 "loop": false,
 "name": &"shoot",
@@ -127,16 +43,7 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_4mnj5")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_0relc")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_v15eo")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_fjneb")
+"texture": ExtResource("2_lc2ma")
 }],
 "loop": true,
 "name": &"walk",
@@ -164,12 +71,22 @@ team = 1
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=785120802]
 sprite_frames = SubResource("SpriteFrames_whddt")
-animation = &"idle"
+animation = &"walk"
 autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionPolygon2D" parent="." unique_id=92815564]
 position = Vector2(0, 4)
 polygon = PackedVector2Array(-9, -19, -9, -10, -9, -7, -11, -7, -14, -3, -14, 3, -10, 6, -7, 9, -5, 12, -5, 14, -6, 16, -6, 18, -6, 18, -5, 21, -4, 22, -2, 23, 1, 23, 3, 22, 4, 21, 5, 18, 5, 16, 4, 14, 4, 12, 6, 9, 11, 3, 14, -1, 14, -5, 10, -7, 9, -7, 9, -10, 9, -21, 2, -24, -3, -26, -5, -31, -7, -29, -7, -22)
+
+[node name="ShootSound" type="AudioStreamPlayer2D" parent="." unique_id=708223848]
+stream = ExtResource("7_cbq76")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2121405492]
+enabled = false
+limit_left = -239
+limit_top = -40
+limit_right = 1201
+limit_bottom = 580
 
 [node name="Health" type="Node" parent="." unique_id=1032959831]
 script = ExtResource("3_yppj8")
@@ -177,9 +94,6 @@ max_health = 50
 
 [node name="Attack" type="Node" parent="." unique_id=1898158667]
 script = ExtResource("4_314el")
-projectile_scene = ExtResource("5_cbq76")
-projectile_speed = 320.0
-knockback_force = 400.0
 cooldown = 0.75
 damage = 5
 
