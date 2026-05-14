@@ -9,6 +9,12 @@ var players: Dictionary = {}
 var projectiles_container: Node2D
 
 
+func clear_projectiles() -> void:
+	if projectiles_container:
+		for p in projectiles_container.get_children():
+			p.queue_free()
+
+
 func spawn_attack(data: Dictionary) -> void:
 	if not multiplayer.is_server():
 		return

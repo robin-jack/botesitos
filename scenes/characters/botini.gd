@@ -46,7 +46,6 @@ var _game: Node2D
 @onready var camera = $Camera2D
 
 
-
 func _enter_tree() -> void:
 	peer_id = int(name)
 	set_multiplayer_authority(peer_id)

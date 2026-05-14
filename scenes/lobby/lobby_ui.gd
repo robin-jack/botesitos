@@ -24,7 +24,7 @@ func _ready() -> void:
 	Lobby.connection_failed.connect(_on_connection_failed)
 	Lobby.server_disconnected.connect(_on_server_disconnected)
 	
-	if OS.has_feature("hoster"):
+	if OS.has_feature("host"):
 		_on_host_pressed()
 	elif OS.has_feature("client"):
 		_on_join_pressed.call_deferred()

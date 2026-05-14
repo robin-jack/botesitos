@@ -14,6 +14,7 @@ Godot 4.6.1 stable, GDScript, 2D asymmetric multiplayer platformer-shooter (serv
 - **Shared character script**: `scenes/characters/botini.tscn` and `scenes/characters/botato.tscn` both use `scenes/characters/botini.gd` (`class_name Player`). The boss is differentiated purely by scene exports: larger collision shape, `botato.png`, and higher `max_health` (default 50 vs 10). **Do not create a separate boss script.**
 - **Components**: reusable logic nodes under `scripts/components/` — `Health`, `Attack`, `Dash`, `GunAttack`. Characters are `CharacterBody2D` with these children.
 - **Manager nodes** (children of `Game`):
+  - `PlayerManager` (`scripts/players/player_manager.gd`): owns player scene lifecycle and the `players` registry. Handles warmup spawn, round spawn, respawn, removal, and death signal hookup.
   - `CombatManager` (`scripts/combat/combat_manager.gd`): validates attack requests and spawns projectiles.
   - `MatchManager` (`scripts/match/match_manager.gd`): owns match rules, phase state, scoring, and round lifecycle. `game.gd` subscribes to its signals and performs scene work.
 
@@ -30,10 +31,10 @@ Godot 4.6.1 stable, GDScript, 2D asymmetric multiplayer platformer-shooter (serv
 - **Scoring** (server-side, end of round):
   - Botinis win: +7 pts for each surviving Botini.
   - Botato wins: +2 pts if alive, +2 pts per dead Botini.
-- **Warmup**: free-for-all with 2-second respawn timers. `game.gd` spawns via `warmup_spawn_needed` / `warmup_respawn_needed` signals.
-- **Round start**: `round_setup_needed` signal tells `game.gd` to clear the container and instantiate `BOSS_SCENE` for the boss, `BOTINI_SCENE` for everyone else.
-- **Late joiners**: `MatchManager.can_spawn_joiner()` checks phase; `game.gd` either spawns or shows `_rpc_match_in_progress`.
-- **Boundary**: `MatchManager` owns match rules and state decisions. `game.gd` remains the integration layer: it handles UI, RPC presentation, lobby signal wiring, player instantiation, spawn points, health signal hookup, and container cleanup.
+- **Warmup**: free-for-all with 2-second respawn timers. `PlayerManager` spawns via `warmup_spawn_needed` / `warmup_respawn_needed` signals.
+- **Round start**: `round_setup_needed` signal tells `PlayerManager` to clear the container and instantiate `BOSS_SCENE` for the boss, `BOTINI_SCENE` for everyone else.
+- **Late joiners**: `MatchManager.can_spawn_joiner()` checks phase; `game.gd` either asks `PlayerManager` to spawn or shows `_rpc_match_in_progress`.
+- **Boundary**: `MatchManager` owns match rules and state decisions. `PlayerManager` owns player scene lifecycle. `game.gd` remains the integration layer: it wires managers together, handles UI, RPC presentation, and lobby signal forwarding.
 
 ## Current character implementation vs MVP design
 
