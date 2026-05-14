@@ -4,6 +4,7 @@
 [ext_resource type="TileSet" uid="uid://lxd08dgpxla" path="res://assets/tile_set.tres" id="3_0sr1o"]
 [ext_resource type="Script" uid="uid://uq58bou4oq8v" path="res://scripts/combat/combat_manager.gd" id="3_kelw5"]
 [ext_resource type="Script" uid="uid://ucg5v3dvqu2p" path="res://scripts/match/match_manager.gd" id="4_match"]
+[ext_resource type="Script" path="res://scripts/players/player_manager.gd" id="5_player"]
 
 [node name="Game" type="Node2D" unique_id=390760802]
 script = ExtResource("1_80nbo")
@@ -13,6 +14,9 @@ script = ExtResource("3_kelw5")
 
 [node name="MatchManager" type="Node" parent="." unique_id=583824091]
 script = ExtResource("4_match")
+
+[node name="PlayerManager" type="Node" parent="."]
+script = ExtResource("5_player")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1082047394]
 offset_left = -246.0
