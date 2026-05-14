@@ -75,14 +75,17 @@ func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_pe
 
 
 func respawn_warmup_player(pid: int) -> void:
+	var player_info = Lobby.players.get(pid)
+	if not player_info:
+		despawn_eliminated_player(pid)
+		return
 	despawn_eliminated_player(pid)
-	var player_info := Lobby.players.get(pid, {})
 	spawn_warmup_player(pid, player_info)
 
 
 func despawn_eliminated_player(pid: int) -> void:
 	if players.has(pid):
-		var player_node: Player = players[pid]
+		var player_node: CharacterBody2D = players[pid]
 		if is_instance_valid(player_node):
 			if player_node.get_parent():
 				player_node.get_parent().remove_child(player_node)
@@ -92,7 +95,7 @@ func despawn_eliminated_player(pid: int) -> void:
 
 func mark_player_disconnected(pid: int) -> void:
 	_connected_peers[pid] = false
-	var player: Player = players.get(pid)
+	var player: CharacterBody2D = players.get(pid)
 	if is_instance_valid(player):
 		player.velocity = Vector2.ZERO
 
@@ -107,7 +110,7 @@ func is_player_connected(pid: int) -> bool:
 
 func remove_player(pid: int) -> void:
 	if players.has(pid):
-		var player_node: Player = players[pid]
+		var player_node: CharacterBody2D = players[pid]
 		if is_instance_valid(player_node):
 			if player_node.get_parent():
 				player_node.get_parent().remove_child(player_node)
@@ -124,7 +127,7 @@ func clear_players() -> void:
 	_connected_peers.clear()
 
 
-func get_player(pid: int) -> Player:
+func get_player(pid: int) -> CharacterBody2D:
 	return players.get(pid)
 
 
