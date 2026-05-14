@@ -19,10 +19,12 @@ func setup(players_container: Node2D, spawn_points: Array) -> void:
 
 
 func spawn_warmup_player(pid: int, player_info: Dictionary) -> void:
+	
+	push_warning("AAAAAAAAAAAAAAA: ", pid)
 	if players.has(pid):
 		return
 
-	var player := BOTINI_SCENE.instantiate() as CharacterBody2D
+	var player := BOTINI_SCENE.instantiate() as Player
 	player.peer_id     = pid
 	player.team        = pid
 	player.player_name = player_info.get("name", "Player %d" % pid)
@@ -36,6 +38,12 @@ func spawn_warmup_player(pid: int, player_info: Dictionary) -> void:
 	var hc := player.get_node_or_null("Health") as Health
 	if hc:
 		hc.died.connect(func(): _on_player_died(pid))
+
+
+func respawn_warmup_player(pid: int) -> void:
+	# var player_node: Player = players.get(pid)
+	push_warning("Miaufers: ", pid)
+	spawn_warmup_player(pid, {"name": "Botini"})
 
 
 func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_peer_ids: Array) -> void:
@@ -63,17 +71,10 @@ func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_pe
 			sp = _spawn_points[botini_idx % _spawn_points.size()]
 			botini_idx += 1
 		player.position = sp.global_position - _players_container.global_position
-		_players_container.add_child(player, true)
+		_players_container.add_child(player)
 		players[pid] = player
 
 		player.health.died.connect(func(): _on_player_died(pid))
-
-
-func respawn_warmup_player(pid: int) -> void:
-	var player_node: Player = players.get(pid)
-	if is_instance_valid(player_node):
-		var sp = _spawn_points[randi() % _spawn_points.size()]
-		player_node.respawn.rpc(sp.global_position)
 
 
 func remove_player(pid: int) -> void:

@@ -42,7 +42,7 @@ func get_health_ratio() -> float:
 	return float(current_health) / float(max_health)
 
 # Internal
-func _die(source: Node) -> void:
+func _die(_source: Node) -> void:
 	if is_dead:
 		return
 	is_dead = true

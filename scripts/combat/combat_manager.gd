@@ -56,4 +56,4 @@ func _do_spawn(data: Dictionary) -> void:
 	projectile.name = "%s_%d" % [attack_id.capitalize(), Time.get_ticks_msec()]
 	projectile.setup(data)
 	if projectiles_container:
-		projectiles_container.add_child(projectile, true)
+		projectiles_container.add_child(projectile)

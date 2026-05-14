@@ -147,8 +147,8 @@ func set_alive(alive: bool) -> void:
 	if multiplayer.get_remote_sender_id() != 1:
 		return
 	is_alive = alive
-	visible = alive
 	if not alive: velocity = Vector2.ZERO
+	queue_free()
 
 @rpc("any_peer", "call_local", "reliable")
 func respawn(pos: Vector2) -> void:
@@ -180,7 +180,7 @@ func _play_damage_effects(hit_direction: Vector2) -> void:
 
 func _on_died() -> void:
 	if multiplayer.is_server():
-		set_alive.rpc(false)
+		_game.set_alive.rpc(self, false)
 
 func _on_attack_executed(data: Dictionary) -> void:
 	animation.play("shoot")

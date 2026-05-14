@@ -8,11 +8,11 @@ var players: Dictionary:
 var boss_peer_id:     int   = -1
 var botinis_peer_ids: Array = []
 
-@onready var players_container:     Node2D = $Players
-@onready var projectiles_container: Node2D = $Projectiles
 @onready var combat_manager:        CombatManager = $CombatManager
 @onready var match_manager:         MatchManager = $MatchManager
 @onready var player_manager:        PlayerManager = $PlayerManager
+@onready var players_container:     Node2D = $Players
+@onready var projectiles_container: Node2D = $Projectiles
 @onready var spawn_points:          Array  = $SpawnPoints.get_children()
 @onready var _countdown_label:      Label  = $UI/CountdownLabel
 @onready var start_button:          Button = $UI/StartButton
@@ -194,3 +194,12 @@ func _rpc_hide_match_over() -> void:
 func _rpc_match_in_progress() -> void:
 	_countdown_label.text = "Match in progress.\nPlease wait for the next match."
 	_countdown_label.visible = true
+
+
+@rpc("any_peer", "call_local", "reliable")
+func set_alive(player: Player, alive: bool) -> void:
+	if multiplayer.get_remote_sender_id() != 1:
+		return
+	player.is_alive = alive
+	if not player.is_alive: player.velocity = Vector2.ZERO
+	players_container.remove_child(player)
