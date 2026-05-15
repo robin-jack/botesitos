@@ -115,7 +115,7 @@ func remove_player(pid: int) -> void:
 		var player_node: CharacterBody2D = players[pid]
 		players.erase(pid)
 		if is_instance_valid(player_node):
-			player_node.queue_free()
+			player_node.queue_free.call_deferred()
 	_connected_peers.erase(pid)
 
 
@@ -123,6 +123,7 @@ func clear_players() -> void:
 	if not multiplayer.is_server():
 		return
 	for c in _players_container.get_children():
+		c.name += "_old"
 		c.queue_free()
 	players.clear()
 	# NOTE: _connected_peers is intentionally NOT cleared here;
