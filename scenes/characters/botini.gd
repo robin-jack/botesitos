@@ -156,8 +156,10 @@ func _play_damage_effects(hit_direction: Vector2) -> void:
 		_damage_tween.tween_property(animation, "modulate", Color.RED, 0.07)
 		_damage_tween.tween_property(animation, "modulate", Color.WHITE, 0.07)
 
-@rpc("authority", "call_local", "reliable")
+@rpc("any_peer", "call_local", "reliable")
 func prepare_for_despawn() -> void:
+	if multiplayer.get_remote_sender_id() != 1:
+		return
 	is_alive = false
 	velocity = Vector2.ZERO
 	set_physics_process(false)
