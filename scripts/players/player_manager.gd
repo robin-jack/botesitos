@@ -84,13 +84,13 @@ func respawn_warmup_player(pid: int) -> void:
 
 
 func despawn_eliminated_player(pid: int) -> void:
+	if not multiplayer.is_server():
+		return
 	if players.has(pid):
 		var player_node: CharacterBody2D = players[pid]
-		if is_instance_valid(player_node):
-			if player_node.get_parent():
-				player_node.get_parent().remove_child(player_node)
-			player_node.queue_free()
 		players.erase(pid)
+		if is_instance_valid(player_node):
+			player_node.queue_free.call_deferred()
 
 
 func mark_player_disconnected(pid: int) -> void:
@@ -109,22 +109,25 @@ func is_player_connected(pid: int) -> bool:
 
 
 func remove_player(pid: int) -> void:
+	if not multiplayer.is_server():
+		return
 	if players.has(pid):
 		var player_node: CharacterBody2D = players[pid]
-		if is_instance_valid(player_node):
-			if player_node.get_parent():
-				player_node.get_parent().remove_child(player_node)
-			player_node.queue_free()
 		players.erase(pid)
+		if is_instance_valid(player_node):
+			player_node.queue_free.call_deferred()
 	_connected_peers.erase(pid)
 
 
 func clear_players() -> void:
+	if not multiplayer.is_server():
+		return
 	for c in _players_container.get_children():
-		_players_container.remove_child(c)
+		c.name += "_old"
 		c.queue_free()
 	players.clear()
-	_connected_peers.clear()
+	# NOTE: _connected_peers is intentionally NOT cleared here;
+	# connection state survives round transitions.
 
 
 func get_player(pid: int) -> CharacterBody2D:
