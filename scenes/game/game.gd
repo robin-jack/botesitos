@@ -64,11 +64,12 @@ func _connect_signals() -> void:
 	# MatchManager -> CombatManager (projectiles)
 	match_manager.projectiles_cleanup_needed.connect(combat_manager.clear_projectiles)
 
-	# PlayerManager -> MatchManager (death)
-	player_manager.player_died.connect(match_manager.handle_player_died)
+	# PlayerManager -> game.gd -> MatchManager (death)
+	player_manager.player_died.connect(_on_player_died)
 
 
 func _on_lobby_player_connected(pid: int, _info: Dictionary) -> void:
+	player_manager.mark_player_connected(pid)
 	if match_manager.can_spawn_joiner():
 		player_manager.spawn_warmup_player(pid, Lobby.players[pid])
 	else:
@@ -76,12 +77,19 @@ func _on_lobby_player_connected(pid: int, _info: Dictionary) -> void:
 		_rpc_match_in_progress.rpc_id(pid)
 
 func _on_lobby_player_disconnected(pid: int) -> void:
-	player_manager.remove_player(pid)
+	player_manager.mark_player_disconnected(pid)
 
 	if not multiplayer.is_server():
 		return
 
 	match_manager.handle_player_disconnected(pid)
+
+
+func _on_player_died(pid: int) -> void:
+	if not multiplayer.is_server():
+		return
+	match_manager.handle_player_died(pid)
+	player_manager.despawn_eliminated_player(pid)
 
 
 # --- Server tick ---

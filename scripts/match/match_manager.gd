@@ -32,6 +32,7 @@ var _player_scores: Dictionary = {}
 var _warmup_respawn_timers: Dictionary = {}
 
 var _players: Dictionary = {}
+var _eliminated_peer_ids: Array[int] = []
 
 var boss_peer_id: int = -1
 var botinis_peer_ids: Array = []
@@ -105,6 +106,8 @@ func handle_player_died(pid: int) -> void:
 	if _phase == Phase.WARMUP:
 		_warmup_respawn_timers[pid] = 2.0
 	elif _phase == Phase.FIGHTING:
+		if not pid in _eliminated_peer_ids:
+			_eliminated_peer_ids.append(pid)
 		_check_round_end()
 
 
@@ -158,6 +161,7 @@ func _start_round() -> void:
 	_current_round += 1
 	boss_peer_id = _boss_rotation[_current_round - 1]
 	botinis_peer_ids = _boss_rotation.filter(func(id): return id != boss_peer_id)
+	_eliminated_peer_ids.clear()
 
 	_countdown_timer = round_start_countdown
 	_last_countdown_sent = -1
@@ -187,30 +191,25 @@ func _award_round(winner_team: int) -> void:
 	phase_changed.emit(_phase)
 
 	if winner_team == TEAM.BOTATO:
-		var botato = _players.get(boss_peer_id)
-		if botato and botato.get("is_alive") == true:
+		if not boss_peer_id in _eliminated_peer_ids:
 			_player_scores[boss_peer_id] += 2
 
 		for pid: int in botinis_peer_ids:
-			var p = _players.get(pid)
-			if p and p.get("is_alive") == false:
+			if pid in _eliminated_peer_ids:
 				_player_scores[boss_peer_id] += 2
 	else:
 		for pid: int in botinis_peer_ids:
-			var p = _players.get(pid)
-			if p and p.get("is_alive") == true:
+			if not pid in _eliminated_peer_ids:
 				_player_scores[pid] += 7
 
 
 func _is_boss_alive() -> bool:
-	var p := _players.get(boss_peer_id) as Node
-	return p != null and p.get("is_alive") == true
+	return not boss_peer_id in _eliminated_peer_ids
 
 
 func _any_botini_alive() -> bool:
 	for pid: int in botinis_peer_ids:
-		var p := _players.get(pid) as Node
-		if p != null and p.get("is_alive") == true:
+		if not pid in _eliminated_peer_ids:
 			return true
 	return false
 
@@ -231,6 +230,7 @@ func _return_to_warmup() -> void:
 	_current_round = 0
 	_player_scores.clear()
 	_warmup_respawn_timers.clear()
+	_eliminated_peer_ids.clear()
 	_phase = Phase.WARMUP
 	_match_in_progress = false
 	phase_changed.emit(_phase)

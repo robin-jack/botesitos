@@ -54,7 +54,7 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 	attack.attack_executed.connect(_on_attack_executed)
 	_game = get_tree().get_first_node_in_group("game")
-	
+
 	var is_local: bool = is_multiplayer_authority()
 	set_physics_process(is_local)
 	camera.enabled = is_local
@@ -141,26 +141,6 @@ func receive_damage(amount: int, direction: Vector2, knockback: float) -> void:
 		velocity += (direction * knockback)
 		velocity.y -= knockback / 4.0
 	health.take_damage(amount)
-		
-@rpc("any_peer", "call_local", "reliable")
-func set_alive(alive: bool) -> void:
-	if multiplayer.get_remote_sender_id() != 1:
-		return
-	is_alive = alive
-	visible = alive
-	if not alive: velocity = Vector2.ZERO
-
-@rpc("any_peer", "call_local", "reliable")
-func respawn(pos: Vector2) -> void:
-	if multiplayer.get_remote_sender_id() != 1:
-		push_error("respawn RPC rejected: sender %d is not server" % multiplayer.get_remote_sender_id())
-		return
-	global_position = pos
-	velocity = Vector2.ZERO
-	is_alive = true
-	visible = true
-	health.reset()
-	attack.reset()
 
 func _play_damage_effects(hit_direction: Vector2) -> void:
 	var explosion = EXPLOSION_SCENE.instantiate()
@@ -179,8 +159,7 @@ func _play_damage_effects(hit_direction: Vector2) -> void:
 # --- Internal call-backs ---
 
 func _on_died() -> void:
-	if multiplayer.is_server():
-		set_alive.rpc(false)
+	is_alive = false
 
 func _on_attack_executed(data: Dictionary) -> void:
 	animation.play("shoot")
