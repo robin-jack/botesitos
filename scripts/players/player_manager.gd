@@ -43,7 +43,7 @@ func spawn_warmup_player(pid: int, player_info: Dictionary) -> void:
 
 
 func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_peer_ids: Array) -> void:
-	clear_players()
+	await clear_players_for_replacement()
 
 	var botini_idx := 0
 	for pid: int in player_infos:
@@ -124,14 +124,29 @@ func remove_player(pid: int) -> void:
 	_connected_peers.erase(pid)
 
 
+func clear_players_for_replacement() -> void:
+	if not multiplayer.is_server():
+		return
+	var nodes_to_free: Array[Node] = _players_container.get_children()
+	players.clear()
+	for node: Node in nodes_to_free:
+		if is_instance_valid(node) and node.has_method("prepare_for_despawn"):
+			node.prepare_for_despawn.rpc()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	for node: Node in nodes_to_free:
+		if is_instance_valid(node):
+			node.queue_free()
+	# Give queue_free one more frame to take effect before spawns reuse names
+	await get_tree().physics_frame
+	# NOTE: _connected_peers is intentionally NOT cleared here;
+	# connection state survives round transitions.
+
+
 func clear_players() -> void:
 	if not multiplayer.is_server():
 		return
-	for c in _players_container.get_children():
-		c.queue_free()
-	players.clear()
-	# NOTE: _connected_peers is intentionally NOT cleared here;
-	# connection state survives round transitions.
+	await clear_players_for_replacement()
 
 
 func get_player(pid: int) -> CharacterBody2D:
