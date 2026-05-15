@@ -127,18 +127,20 @@ func remove_player(pid: int) -> void:
 func clear_players_for_replacement() -> void:
 	if not multiplayer.is_server():
 		return
-	var nodes_to_free: Array[CharacterBody2D] = []
-	for pid: int in players:
-		nodes_to_free.append(players[pid])
+	var nodes_to_free: Array[Node] = _players_container.get_children()
 	players.clear()
-	for node: CharacterBody2D in nodes_to_free:
+	for node: Node in nodes_to_free:
 		if is_instance_valid(node) and node.has_method("prepare_for_despawn"):
 			node.prepare_for_despawn.rpc()
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	for node: CharacterBody2D in nodes_to_free:
+	for node: Node in nodes_to_free:
 		if is_instance_valid(node):
-			node.queue_free.call_deferred()
+			node.queue_free()
+	# Give queue_free one more frame to take effect before spawns reuse names
+	await get_tree().physics_frame
+	# NOTE: _connected_peers is intentionally NOT cleared here;
+	# connection state survives round transitions.
 
 
 func clear_players() -> void:
