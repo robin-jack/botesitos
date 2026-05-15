@@ -77,9 +77,9 @@ func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_pe
 func respawn_warmup_player(pid: int) -> void:
 	var player_info = Lobby.players.get(pid)
 	if not player_info:
-		despawn_eliminated_player(pid)
+		await despawn_eliminated_player(pid)
 		return
-	despawn_eliminated_player(pid)
+	await despawn_eliminated_player(pid)
 	spawn_warmup_player(pid, player_info)
 
 
@@ -90,7 +90,8 @@ func despawn_eliminated_player(pid: int) -> void:
 		var player_node: CharacterBody2D = players[pid]
 		players.erase(pid)
 		if is_instance_valid(player_node):
-			player_node.prepare_for_despawn.rpc()
+			if player_node.has_method("prepare_for_despawn"):
+				player_node.prepare_for_despawn.rpc()
 			await get_tree().physics_frame
 			await get_tree().physics_frame
 			if is_instance_valid(player_node):
