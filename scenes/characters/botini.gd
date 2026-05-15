@@ -155,7 +155,18 @@ func _play_damage_effects(hit_direction: Vector2) -> void:
 	for i in range(3):
 		_damage_tween.tween_property(animation, "modulate", Color.RED, 0.07)
 		_damage_tween.tween_property(animation, "modulate", Color.WHITE, 0.07)
-	
+
+@rpc("authority", "call_local", "reliable")
+func prepare_for_despawn() -> void:
+	is_alive = false
+	velocity = Vector2.ZERO
+	set_physics_process(false)
+	if camera:
+		camera.enabled = false
+	var sync := get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
+	if sync:
+		sync.public_visibility = false
+
 # --- Internal call-backs ---
 
 func _on_died() -> void:

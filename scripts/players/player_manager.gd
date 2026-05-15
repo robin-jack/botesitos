@@ -90,7 +90,11 @@ func despawn_eliminated_player(pid: int) -> void:
 		var player_node: CharacterBody2D = players[pid]
 		players.erase(pid)
 		if is_instance_valid(player_node):
-			player_node.queue_free.call_deferred()
+			player_node.prepare_for_despawn.rpc()
+			await get_tree().physics_frame
+			await get_tree().physics_frame
+			if is_instance_valid(player_node):
+				player_node.queue_free.call_deferred()
 
 
 func mark_player_disconnected(pid: int) -> void:
@@ -123,7 +127,6 @@ func clear_players() -> void:
 	if not multiplayer.is_server():
 		return
 	for c in _players_container.get_children():
-		c.name += "_old"
 		c.queue_free()
 	players.clear()
 	# NOTE: _connected_peers is intentionally NOT cleared here;
