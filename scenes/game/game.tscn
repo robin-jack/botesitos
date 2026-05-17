@@ -4,7 +4,8 @@
 [ext_resource type="TileSet" uid="uid://lxd08dgpxla" path="res://assets/tile_set.tres" id="3_0sr1o"]
 [ext_resource type="Script" uid="uid://uq58bou4oq8v" path="res://scripts/combat/combat_manager.gd" id="3_kelw5"]
 [ext_resource type="Script" uid="uid://ucg5v3dvqu2p" path="res://scripts/match/match_manager.gd" id="4_match"]
-[ext_resource type="Script" path="res://scripts/players/player_manager.gd" id="5_player"]
+[ext_resource type="Script" uid="uid://cvgni3hj0xcb4" path="res://scripts/players/player_manager.gd" id="5_player"]
+[ext_resource type="Script" uid="uid://b5ebf6p1kytyn" path="res://scripts/players/player_netcode.gd" id="6_5i0tg"]
 
 [node name="Game" type="Node2D" unique_id=390760802]
 script = ExtResource("1_80nbo")
@@ -15,7 +16,7 @@ script = ExtResource("3_kelw5")
 [node name="MatchManager" type="Node" parent="." unique_id=583824091]
 script = ExtResource("4_match")
 
-[node name="PlayerManager" type="Node" parent="."]
+[node name="PlayerManager" type="Node" parent="." unique_id=2137202014]
 script = ExtResource("5_player")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1082047394]
@@ -94,3 +95,6 @@ offset_top = 63.0
 offset_right = 896.0
 offset_bottom = 94.0
 text = "STOP"
+
+[node name="PlayerNetcode" type="Node" parent="." unique_id=1029112486]
+script = ExtResource("6_5i0tg")

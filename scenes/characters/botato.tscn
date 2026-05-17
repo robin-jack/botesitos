@@ -50,20 +50,6 @@ animations = [{
 "speed": 15.0
 }]
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hqtel"]
-properties/0/path = NodePath(".:position")
-properties/0/spawn = true
-properties/0/replication_mode = 1
-properties/1/path = NodePath(".:velocity")
-properties/1/spawn = true
-properties/1/replication_mode = 1
-properties/2/path = NodePath(".:is_alive")
-properties/2/spawn = true
-properties/2/replication_mode = 2
-properties/3/path = NodePath(".:facing_dir")
-properties/3/spawn = true
-properties/3/replication_mode = 1
-
 [node name="Boss" type="CharacterBody2D" unique_id=1703312197]
 floor_max_angle = 0.80285144
 script = ExtResource("1_lc2ma")
@@ -102,5 +88,4 @@ script = ExtResource("6_fbotk")
 input_key = &"ui_accept"
 cooldown = 0.45
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1040714569]
-replication_config = SubResource("SceneReplicationConfig_hqtel")
+

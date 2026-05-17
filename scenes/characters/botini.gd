@@ -7,14 +7,13 @@ const COYOTE_TIME_MAX = 0.12 # seconds
 
 enum TEAM { BOTINI, BOTATO }
 
-# Replicated state 
-var SyncPos: Vector2
 var facing_dir: bool = true:
 	set(value):
 		facing_dir = value
 		if is_inside_tree() and animation:
 			animation.flip_h = not value
 var is_alive: bool = true
+var spawn_generation: int = 0
 
 # Set by game.gd before add_child
 @export var team: TEAM
@@ -47,10 +46,6 @@ var _game: Node2D
 @onready var shoot_sound = $ShootSound
 @onready var camera = $Camera2D
 
-@onready var synker = $MultiplayerSynchronizer
-
-
-
 func _enter_tree() -> void:
 	peer_id = int(name)
 	set_multiplayer_authority(peer_id)
@@ -64,21 +59,19 @@ func _ready() -> void:
 	camera.enabled = is_local
 	
 func _physics_process(delta: float) -> void:
-	if is_local:
-		if not is_alive:
-			return
-		dash.update(delta)
-		_apply_gravity(delta)
-		_gather_input()
-		_handle_jump()
-		_handle_dash()
-		_handle_movement(delta)
-		_handle_attack()
-		move_and_slide()
-		_update_facing()
-		SyncPos = global_position
-	else:
-		global_position = global_position.lerp(SyncPos, 10 * delta)
+	if not is_local:
+		return
+	if not is_alive:
+		return
+	dash.update(delta)
+	_apply_gravity(delta)
+	_gather_input()
+	_handle_jump()
+	_handle_dash()
+	_handle_movement(delta)
+	_handle_attack()
+	move_and_slide()
+	_update_facing()
 	
 func _gather_input() -> void:
 	input_dir = Input.get_axis("ui_left", "ui_right")
@@ -172,9 +165,6 @@ func prepare_for_despawn() -> void:
 	set_physics_process(false)
 	if camera:
 		camera.enabled = false
-	var sync := get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
-	if sync:
-		sync.public_visibility = false
 
 # --- Internal call-backs ---
 
