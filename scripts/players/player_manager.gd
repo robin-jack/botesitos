@@ -4,8 +4,6 @@ extends Node
 signal player_died(pid: int)
 
 const MULTIPLAYER_CLIENT = preload("uid://c3iades372qie")
-const BOTINI_SCENE = preload("uid://cfxvxpnwen2eq")
-const BOSS_SCENE   = preload("uid://df6cjrmb84qw7")
 
 ## peer_id -> MultiplayerClient (persistent for the network session)
 var clients: Dictionary = {}
@@ -33,35 +31,32 @@ func _get_or_create_client(pid: int) -> MultiplayerClient:
 		_players_container.add_child(client)
 		clients[pid] = client
 		_connected_peers[pid] = true
+		
+		client.player_spawned.connect(func(p): _on_player_spawned(pid, p))
+		client.player_despawned.connect(func(p): _on_player_despawned(pid, p))
 	return client
+
+
+func _on_player_spawned(pid: int, player: Player) -> void:
+	players[pid] = player
+	player.player_name = Lobby.clients.get(pid, {}).get("name", "Player %d" % pid)
+	var hc := player.get_node_or_null("Health") as Health
+	if hc:
+		hc.died.connect(func(): _on_player_died(pid))
+
+
+func _on_player_despawned(pid: int, _player: Player) -> void:
+	players.erase(pid)
 
 
 func spawn_warmup_player(pid: int, player_info: Dictionary) -> void:
 	var client := _get_or_create_client(pid)
-
-	# Already has a valid, alive player?
-	if is_instance_valid(client.player) and client.player.is_alive:
+	if client.player_type != MultiplayerClient.PlayerType.NONE:
 		return
 
-	# Remove dead/missing player before respawning
-	if is_instance_valid(client.player):
-		client.set_player(null)
-	players.erase(pid)
-
-	var player := BOTINI_SCENE.instantiate() as Player
-	player.name = str(pid)
-	player.peer_id = pid
-	player.team = pid
-	player.player_name = player_info.get("name", "Player %d" % pid)
 	var sp: Node2D = _spawn_points[randi() % _spawn_points.size()]
-	player.position = sp.global_position - _players_container.global_position
-
-	client.set_player(player)
-	players[pid] = player
-
-	var hc := player.get_node_or_null("Health") as Health
-	if hc:
-		hc.died.connect(func(): _on_player_died(pid))
+	client.spawn_position = sp.global_position - _players_container.global_position
+	client.player_type = MultiplayerClient.PlayerType.BOTINI
 
 
 func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_peer_ids: Array) -> void:
@@ -72,30 +67,14 @@ func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_pe
 		var is_boss := (pid == boss_peer_id)
 		var client := _get_or_create_client(pid)
 
-		var player: Player
-		if is_boss:
-			player = BOSS_SCENE.instantiate() as Player
-			player.player_name = player_infos[pid].get("name", "Botato %d" % pid)
-		else:
-			player = BOTINI_SCENE.instantiate() as Player
-			player.player_name = player_infos[pid].get("name", "Botini %d" % pid)
-
-		player.name = str(pid)
-		player.peer_id = pid
-		player.team = pid
-
 		var sp: Node2D
 		if is_boss:
 			sp = _spawn_points[randi() % _spawn_points.size()]
 		else:
 			sp = _spawn_points[botini_idx % _spawn_points.size()]
 			botini_idx += 1
-		player.position = sp.global_position - _players_container.global_position
-
-		client.set_player(player)
-		players[pid] = player
-
-		player.health.died.connect(func(): _on_player_died(pid))
+		client.spawn_position = sp.global_position - _players_container.global_position
+		client.player_type = MultiplayerClient.PlayerType.BOSS if is_boss else MultiplayerClient.PlayerType.BOTINI
 
 
 func respawn_warmup_player(pid: int) -> void:
@@ -120,8 +99,7 @@ func despawn_eliminated_player(pid: int) -> void:
 	if clients.has(pid):
 		var c: MultiplayerClient = clients[pid]
 		if is_instance_valid(c):
-			c.set_player(null)
-	players.erase(pid)
+			c.player_type = MultiplayerClient.PlayerType.NONE
 
 
 func mark_player_disconnected(pid: int) -> void:
@@ -160,7 +138,7 @@ func clear_players() -> void:
 	for pid: int in clients:
 		var client: MultiplayerClient = clients[pid]
 		if is_instance_valid(client):
-			client.set_player(null)
+			client.player_type = MultiplayerClient.PlayerType.NONE
 
 	players.clear()
 	# NOTE: _connected_peers and clients are intentionally NOT cleared here;

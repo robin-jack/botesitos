@@ -7,13 +7,10 @@ const COYOTE_TIME_MAX = 0.12 # seconds
 
 enum TEAM { BOTINI, BOTATO }
 
-var parent: MultiplayerClient
-
-# Replicated state 
+# Replicated state (read/written by MultiplayerClient)
 var facing_dir: bool = true:
 	set(value):
 		facing_dir = value
-		parent.facing_dir = value
 		if is_inside_tree() and animation:
 			animation.flip_h = not value
 var is_alive: bool = true
@@ -22,7 +19,6 @@ var is_alive: bool = true
 @export var team: TEAM
 var player_name: String = "Player"
 var is_local: bool
-var peer_id: int
 
 # Stats
 var max_health: int = 10
@@ -49,10 +45,6 @@ var _game: Node2D
 @onready var shoot_sound = $ShootSound
 @onready var camera = $Camera2D
 
-func _enter_tree() -> void:
-	peer_id = int(name)
-	set_multiplayer_authority(peer_id)
-
 func _ready() -> void:
 	health.died.connect(_on_died)
 	attack.attack_executed.connect(_on_attack_executed)
@@ -61,22 +53,20 @@ func _ready() -> void:
 	is_local = is_multiplayer_authority()
 	set_physics_process(is_local)
 	camera.enabled = is_local
-	parent = get_parent() as MultiplayerClient
-
-func _physics_process(delta: float) -> void:
+	
+func _physics_process(_delta: float) -> void:
 	if not is_alive:
 		return
-	dash.update(delta)
-	_apply_gravity(delta)
+	dash.update(_delta)
+	_apply_gravity(_delta)
 	_gather_input()
 	_handle_jump()
 	_handle_dash()
-	_handle_movement(delta)
+	_handle_movement(_delta)
 	_handle_attack()
 	move_and_slide()
 	_update_facing()
-	parent.SyncPos = global_position
-
+	
 func _gather_input() -> void:
 	input_dir = Input.get_axis("ui_left", "ui_right")
 	_jump_req  = Input.is_action_just_pressed("ui_up")
@@ -130,18 +120,11 @@ func _update_facing() -> void:
 		else:
 			animation.play("idle")
 	
-# --- Network ---
-
-# "authority" means the client would have to call it — wrong
-# "any_peer" lets the server call it on all peers
-@rpc("any_peer", "call_local", "reliable")
-func receive_damage(amount: int, direction: Vector2, knockback: float) -> void:
-	if multiplayer.get_remote_sender_id() != 1:
-		return
+func apply_damage(amount: int, direction: Vector2, knockback: float, is_authority: bool) -> void:
 	if not is_alive:
 		return
 	_play_damage_effects(direction)
-	if is_multiplayer_authority():
+	if is_authority:
 		velocity += (direction * knockback)
 		velocity.y -= knockback / 4.0
 	health.take_damage(amount)
@@ -160,16 +143,13 @@ func _play_damage_effects(hit_direction: Vector2) -> void:
 		_damage_tween.tween_property(animation, "modulate", Color.RED, 0.07)
 		_damage_tween.tween_property(animation, "modulate", Color.WHITE, 0.07)
 
-# --- Internal call-backs ---
-
 func _on_died() -> void:
 	is_alive = false
-	parent.is_alive = false
 
 func _on_attack_executed(data: Dictionary) -> void:
 	animation.play("shoot")
 	shoot_sound.play()
-	if multiplayer.is_server():
+	if is_multiplayer_authority():
 		_game.combat_manager.spawn_attack(data)
 	else:
 		_game.combat_manager.request_attack.rpc_id(1, data)

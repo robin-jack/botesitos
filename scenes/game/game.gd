@@ -130,12 +130,14 @@ func _on_teams_changed(b_peer: int, botinis_peers: Array) -> void:
 	_rpc_hide_match_over.rpc()
 
 func _on_match_over(scores: Dictionary) -> void:
+	player_manager.clear_players()
 	for pid: int in Lobby.clients:
 		player_manager.spawn_warmup_player(pid, Lobby.clients[pid])
 	_rpc_show_match_over.rpc(scores)
 	stop_button.hide()
 
 func _on_warmup_returned() -> void:
+	player_manager.clear_players()
 	_update_host_buttons()
 	_rpc_hide_match_over.rpc()
 	for pid: int in Lobby.clients:
