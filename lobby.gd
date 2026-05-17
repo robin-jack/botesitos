@@ -13,7 +13,7 @@ const MAX_CONNECTIONS = 10
 
 var player_info: Dictionary = {"name": "Botini"}
 
-var players: Dictionary = {}
+var clients: Dictionary = {}
 
 
 func _ready() -> void:
@@ -30,7 +30,7 @@ func create_game() -> Error:
 	if error != OK:
 		return error
 	multiplayer.multiplayer_peer = peer
-	players[1] = player_info
+	clients[1] = player_info
 	player_connected.emit(1, player_info)
 	return OK
 
@@ -46,7 +46,7 @@ func join_game(address: String) -> Error:
 
 func remove_multiplayer_peer() -> void:
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
-	players.clear()
+	clients.clear()
 
 
 # --- Multiplayer callbacks ---
@@ -61,19 +61,19 @@ func _on_peer_connected(id: int) -> void:
 @rpc("any_peer", "reliable")
 func _register_player(new_player_info: Dictionary) -> void:
 	var new_player_id := multiplayer.get_remote_sender_id()
-	players[new_player_id] = new_player_info
+	clients[new_player_id] = new_player_info
 	player_connected.emit(new_player_id, new_player_info)
 
 
 func _on_peer_disconnected(id: int) -> void:
-	players.erase(id)
+	clients.erase(id)
 	player_disconnected.emit(id)
 
 
 ## Called on the client when the connection to the server is confirmed.
 func _on_connected_ok() -> void:
 	var peer_id := multiplayer.get_unique_id()
-	players[peer_id] = player_info
+	clients[peer_id] = player_info
 	player_connected.emit(peer_id, player_info)
 
 

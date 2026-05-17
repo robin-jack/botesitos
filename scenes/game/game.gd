@@ -29,8 +29,8 @@ func _ready() -> void:
 
 	# Only the server manages game state and spawns players.
 	if multiplayer.is_server():
-		for pid: int in Lobby.players:
-			player_manager.spawn_warmup_player(pid, Lobby.players[pid])
+		for pid: int in Lobby.clients:
+			player_manager.spawn_warmup_player(pid, Lobby.clients[pid])
 
 		Lobby.player_connected.connect(_on_lobby_player_connected)
 		Lobby.player_disconnected.connect(_on_lobby_player_disconnected)
@@ -75,6 +75,7 @@ func _on_lobby_player_connected(pid: int, _info: Dictionary) -> void:
 	else:
 		# Late joiner during match — inform them
 		_rpc_match_in_progress.rpc_id(pid)
+
 
 func _on_lobby_player_disconnected(pid: int) -> void:
 	player_manager.mark_player_disconnected(pid)

@@ -1,6 +1,25 @@
 [gd_scene format=3 uid="uid://c3iades372qie"]
 
 [ext_resource type="Script" uid="uid://dermoy7lyjqd7" path="res://scripts/multiplayer_client.gd" id="1_1dhj1"]
+[ext_resource type="PackedScene" uid="uid://cfxvxpnwen2eq" path="res://scenes/characters/botini.tscn" id="2_h2mgq"]
 
-[node name="MultiplayerClient" type="Node" unique_id=1276017124]
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_uixa2"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:facing_dir")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:is_alive")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+
+[node name="MultiplayerClient" type="Node" unique_id=1720523327 node_paths=PackedStringArray("player")]
 script = ExtResource("1_1dhj1")
+player = NodePath("Botini")
+
+[node name="Botini" parent="." unique_id=1703312197 instance=ExtResource("2_h2mgq")]
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=1280491812]
+root_path = NodePath("../Botini")
+replication_config = SubResource("SceneReplicationConfig_uixa2")

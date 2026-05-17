@@ -18,7 +18,6 @@ var is_alive: bool = true
 
 # Set by game.gd before add_child
 @export var team: TEAM
-var peer_id: int = 1
 var player_name: String = "Player"
 var is_local: bool
 
@@ -47,20 +46,13 @@ var _game: Node2D
 @onready var shoot_sound = $ShootSound
 @onready var camera = $Camera2D
 
-@onready var synker = $MultiplayerSynchronizer
-
-
-
-func _enter_tree() -> void:
-	peer_id = int(name)
-	set_multiplayer_authority(peer_id)
-		
 func _ready() -> void:
 	health.died.connect(_on_died)
 	attack.attack_executed.connect(_on_attack_executed)
 	_game = get_tree().get_first_node_in_group("game")
 
 	is_local = is_multiplayer_authority()
+	set_physics_process(is_local)
 	camera.enabled = is_local
 	
 func _physics_process(delta: float) -> void:
@@ -162,19 +154,6 @@ func _play_damage_effects(hit_direction: Vector2) -> void:
 	for i in range(3):
 		_damage_tween.tween_property(animation, "modulate", Color.RED, 0.07)
 		_damage_tween.tween_property(animation, "modulate", Color.WHITE, 0.07)
-
-@rpc("any_peer", "call_local", "reliable")
-func prepare_for_despawn() -> void:
-	if multiplayer.get_remote_sender_id() != 1:
-		return
-	is_alive = false
-	velocity = Vector2.ZERO
-	set_physics_process(false)
-	if camera:
-		camera.enabled = false
-	var sync := get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
-	if sync:
-		sync.public_visibility = false
 
 # --- Internal call-backs ---
 

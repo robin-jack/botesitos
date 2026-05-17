@@ -31,8 +31,8 @@ func request_attack(data: Dictionary) -> void:
 	if owner_id != sender:
 		return
 
-	var player: Player = players.get(owner_id)
-	if not is_instance_valid(player) or not player.is_alive:
+	var client: MultiplayerClient = players.get(owner_id)
+	if not is_instance_valid(client.player) or not client.player.is_alive:
 		return
 
 	var attack_id: String = data.get("attack_id", "")
@@ -41,7 +41,7 @@ func request_attack(data: Dictionary) -> void:
 
 	# Authoritative overrides (position/direction trusted per MVP assumption)
 	data["owner_id"] = sender
-	data["team"] = player.team
+	data["team"] = client.player.team
 
 	_do_spawn(data)
 
