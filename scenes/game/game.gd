@@ -23,7 +23,7 @@ func _ready() -> void:
 	add_to_group("game")
 	player_manager.setup(players_container, spawn_points)
 	match_manager.setup(player_manager.players)
-	combat_manager.players = player_manager.players
+	combat_manager.players = player_manager.clients
 	combat_manager.projectiles_container = $Projectiles
 	_connect_signals()
 
@@ -53,10 +53,10 @@ func _connect_signals() -> void:
 
 	# MatchManager -> PlayerManager (lifecycle)
 	match_manager.warmup_spawn_needed.connect(
-		func(pid): player_manager.spawn_warmup_player(pid, Lobby.players.get(pid, {}))
+		func(pid): player_manager.spawn_warmup_player(pid, Lobby.clients.get(pid, {}))
 	)
 	match_manager.round_setup_needed.connect(
-		func(boss_id, botini_ids): player_manager.spawn_round_players(Lobby.players, boss_id, botini_ids)
+		func(boss_id, botini_ids): player_manager.spawn_round_players(Lobby.clients, boss_id, botini_ids)
 	)
 	match_manager.warmup_respawn_needed.connect(player_manager.respawn_warmup_player)
 	match_manager.round_cleanup_needed.connect(player_manager.clear_players)
@@ -71,7 +71,7 @@ func _connect_signals() -> void:
 func _on_lobby_player_connected(pid: int, _info: Dictionary) -> void:
 	player_manager.mark_player_connected(pid)
 	if match_manager.can_spawn_joiner():
-		player_manager.spawn_warmup_player(pid, Lobby.players[pid])
+		player_manager.spawn_warmup_player(pid, Lobby.clients[pid])
 	else:
 		# Late joiner during match — inform them
 		_rpc_match_in_progress.rpc_id(pid)
@@ -103,7 +103,7 @@ func _physics_process(delta: float) -> void:
 
 func _on_start_button_pressed() -> void:
 	_countdown_label.show()
-	if match_manager.request_start_match(Lobby.players.keys()):
+	if match_manager.request_start_match(Lobby.clients.keys()):
 		_update_host_buttons()
 
 func _on_stop_match_pressed() -> void:
@@ -130,16 +130,16 @@ func _on_teams_changed(b_peer: int, botinis_peers: Array) -> void:
 	_rpc_hide_match_over.rpc()
 
 func _on_match_over(scores: Dictionary) -> void:
-	for pid: int in Lobby.players:
-		player_manager.spawn_warmup_player(pid, Lobby.players[pid])
+	for pid: int in Lobby.clients:
+		player_manager.spawn_warmup_player(pid, Lobby.clients[pid])
 	_rpc_show_match_over.rpc(scores)
 	stop_button.hide()
 
 func _on_warmup_returned() -> void:
 	_update_host_buttons()
 	_rpc_hide_match_over.rpc()
-	for pid: int in Lobby.players:
-		player_manager.spawn_warmup_player(pid, Lobby.players[pid])
+	for pid: int in Lobby.clients:
+		player_manager.spawn_warmup_player(pid, Lobby.clients[pid])
 
 func _update_host_buttons() -> void:
 	var is_server := multiplayer.is_server()
@@ -174,8 +174,8 @@ func _rpc_show_match_over(scores: Dictionary) -> void:
 	var text := "MATCH OVER!\n"
 	for pid in scores:
 		var player_name := ""
-		if Lobby.players.has(pid):
-			player_name = Lobby.players[pid].get("name", "Player %d" % pid)
+		if Lobby.clients.has(pid):
+			player_name = Lobby.clients[pid].get("name", "Player %d" % pid)
 		else:
 			player_name = "Player %d" % pid
 		var score: int = scores[pid]
@@ -185,8 +185,8 @@ func _rpc_show_match_over(scores: Dictionary) -> void:
 			winner_pid = pid
 	if winner_pid != -1:
 		var winner_name := ""
-		if Lobby.players.has(winner_pid):
-			winner_name = Lobby.players[winner_pid].get("name", "Player %d" % winner_pid)
+		if Lobby.clients.has(winner_pid):
+			winner_name = Lobby.clients[winner_pid].get("name", "Player %d" % winner_pid)
 		else:
 			winner_name = "Player %d" % winner_pid
 		text += "\nWinner: %s!" % winner_name

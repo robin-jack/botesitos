@@ -20,6 +20,7 @@ var is_alive: bool = true
 @export var team: TEAM
 var player_name: String = "Player"
 var is_local: bool
+var peer_id: int
 
 # Stats
 var max_health: int = 10
@@ -45,6 +46,10 @@ var _game: Node2D
 @onready var animation: AnimatedSprite2D = $AnimatedSprite2D
 @onready var shoot_sound = $ShootSound
 @onready var camera = $Camera2D
+
+func _enter_tree() -> void:
+	peer_id = int(name)
+	set_multiplayer_authority(peer_id)
 
 func _ready() -> void:
 	health.died.connect(_on_died)
