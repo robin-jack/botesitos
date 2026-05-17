@@ -7,11 +7,13 @@ const COYOTE_TIME_MAX = 0.12 # seconds
 
 enum TEAM { BOTINI, BOTATO }
 
+var parent: MultiplayerClient
+
 # Replicated state 
-var SyncPos: Vector2
 var facing_dir: bool = true:
 	set(value):
 		facing_dir = value
+		parent.facing_dir = value
 		if is_inside_tree() and animation:
 			animation.flip_h = not value
 var is_alive: bool = true
@@ -59,24 +61,22 @@ func _ready() -> void:
 	is_local = is_multiplayer_authority()
 	set_physics_process(is_local)
 	camera.enabled = is_local
-	
+	parent = get_parent() as MultiplayerClient
+
 func _physics_process(delta: float) -> void:
-	if is_local:
-		if not is_alive:
-			return
-		dash.update(delta)
-		_apply_gravity(delta)
-		_gather_input()
-		_handle_jump()
-		_handle_dash()
-		_handle_movement(delta)
-		_handle_attack()
-		move_and_slide()
-		_update_facing()
-		SyncPos = global_position
-	else:
-		global_position = global_position.lerp(SyncPos, 10 * delta)
-	
+	if not is_alive:
+		return
+	dash.update(delta)
+	_apply_gravity(delta)
+	_gather_input()
+	_handle_jump()
+	_handle_dash()
+	_handle_movement(delta)
+	_handle_attack()
+	move_and_slide()
+	_update_facing()
+	parent.SyncPos = global_position
+
 func _gather_input() -> void:
 	input_dir = Input.get_axis("ui_left", "ui_right")
 	_jump_req  = Input.is_action_just_pressed("ui_up")
@@ -164,6 +164,7 @@ func _play_damage_effects(hit_direction: Vector2) -> void:
 
 func _on_died() -> void:
 	is_alive = false
+	parent.is_alive = false
 
 func _on_attack_executed(data: Dictionary) -> void:
 	animation.play("shoot")

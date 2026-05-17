@@ -1,8 +1,6 @@
 [gd_scene format=3 uid="uid://c3iades372qie"]
 
 [ext_resource type="Script" uid="uid://dermoy7lyjqd7" path="res://scripts/multiplayer_client.gd" id="1_1dhj1"]
-[ext_resource type="PackedScene" uid="uid://cfxvxpnwen2eq" path="res://scenes/characters/botini.tscn" id="2_h2mgq"]
-[ext_resource type="PackedScene" uid="uid://df6cjrmb84qw7" path="res://scenes/characters/botato.tscn" id="3_xxx"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_uixa2"]
 properties/0/path = NodePath(".:SyncPos")

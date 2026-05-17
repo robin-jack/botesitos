@@ -5,6 +5,10 @@ extends Node
 @onready var synchronizer: MultiplayerSynchronizer = $MultiplayerSynchronizer
 var peer_id: int
 
+var SyncPos: Vector2
+var facing_dir: bool
+var is_alive: bool
+
 func _enter_tree() -> void:
 	peer_id = int(name)
 	set_multiplayer_authority(peer_id)

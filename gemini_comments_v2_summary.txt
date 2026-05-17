@@ -7,7 +7,7 @@ Suggestions: 1
 --- Comment 1 ---
 User: gemini-code-assist[bot]
 Type: review_comment
-File: scripts/multiplayer_client.gd:22
+File: scripts/multiplayer_client.gd:28
 URL: https://github.com/robin-jack/botesitos/pull/19#discussion_r3255147932
 Body:
 ![critical](https://www.gstatic.com/codereviewagent/critical.svg)
@@ -42,7 +42,7 @@ This pull request adds a multiplayer API reference and refactors the networking 
 --- Comment 4 ---
 User: gemini-code-assist[bot]
 Type: review_comment
-File: scripts/multiplayer_client.gd:16
+File: scripts/multiplayer_client.gd:22
 URL: https://github.com/robin-jack/botesitos/pull/19#discussion_r3255147940
 Body:
 ![high](https://www.gstatic.com/codereviewagent/high-priority.svg)
@@ -61,7 +61,7 @@ You should explicitly remove the child from the tree before calling `queue_free(
 --- Comment 5 ---
 User: gemini-code-assist[bot]
 Type: review_comment
-File: scripts/combat/combat_manager.gd:35
+File: scripts/combat/combat_manager.gd:None
 URL: https://github.com/robin-jack/botesitos/pull/19#discussion_r3255147943
 Body:
 ![medium](https://www.gstatic.com/codereviewagent/medium-priority.svg)
@@ -77,7 +77,7 @@ The `client` variable obtained from `players.get(owner_id)` can be `null` if the
 --- Comment 6 ---
 User: gemini-code-assist[bot]
 Type: review_comment
-File: scenes/lobby/lobby_ui.gd:29
+File: scenes/lobby/lobby_ui.gd:None
 URL: https://github.com/robin-jack/botesitos/pull/19#discussion_r3255147944
 Body:
 ![medium](https://www.gstatic.com/codereviewagent/medium-priority.svg)
