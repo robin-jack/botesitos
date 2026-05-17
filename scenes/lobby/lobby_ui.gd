@@ -25,7 +25,6 @@ func _ready() -> void:
 	Lobby.server_disconnected.connect(_on_server_disconnected)
 	
 	if OS.has_feature("host"):
-		push_warning(">>> HOST HERE")
 		_on_host_pressed()
 	elif OS.has_feature("client"):
 		_on_join_pressed.call_deferred()

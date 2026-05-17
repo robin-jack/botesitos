@@ -8,16 +8,22 @@ var peer_id: int
 func _enter_tree() -> void:
 	peer_id = int(name)
 	set_multiplayer_authority(peer_id)
+	# The player child is named with the same peer_id, so the synchronizer
+	# can resolve it once the internal spawner creates it on remote peers.
+	var sync := get_node_or_null("MultiplayerSynchronizer")
+	if sync:
+		sync.root_path = NodePath("../" + name)
 
 
 func set_player(new_player: Player) -> void:
 	if is_instance_valid(player):
+		remove_child(player)
 		player.queue_free()
 		player = null
 
 	if is_instance_valid(new_player):
 		player = new_player
-		add_child(player)
+		add_child(new_player)
 		if synchronizer:
 			synchronizer.root_path = NodePath("../" + player.name)
 

@@ -32,7 +32,7 @@ func request_attack(data: Dictionary) -> void:
 		return
 
 	var client: MultiplayerClient = players.get(owner_id)
-	if not is_instance_valid(client.player) or not client.player.is_alive:
+	if not is_instance_valid(client) or not is_instance_valid(client.player) or not client.player.is_alive:
 		return
 
 	var attack_id: String = data.get("attack_id", "")
