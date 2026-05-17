@@ -8,6 +8,7 @@ const COYOTE_TIME_MAX = 0.12 # seconds
 enum TEAM { BOTINI, BOTATO }
 
 # Replicated state 
+var SyncPos: Vector2
 var facing_dir: bool = true:
 	set(value):
 		facing_dir = value
@@ -19,6 +20,7 @@ var is_alive: bool = true
 @export var team: TEAM
 var peer_id: int = 1
 var player_name: String = "Player"
+var is_local: bool
 
 # Stats
 var max_health: int = 10
@@ -45,6 +47,9 @@ var _game: Node2D
 @onready var shoot_sound = $ShootSound
 @onready var camera = $Camera2D
 
+@onready var synker = $MultiplayerSynchronizer
+
+
 
 func _enter_tree() -> void:
 	peer_id = int(name)
@@ -55,22 +60,25 @@ func _ready() -> void:
 	attack.attack_executed.connect(_on_attack_executed)
 	_game = get_tree().get_first_node_in_group("game")
 
-	var is_local: bool = is_multiplayer_authority()
-	set_physics_process(is_local)
+	is_local = is_multiplayer_authority()
 	camera.enabled = is_local
 	
 func _physics_process(delta: float) -> void:
-	if not is_alive:
-		return
-	dash.update(delta)
-	_apply_gravity(delta)
-	_gather_input()
-	_handle_jump()
-	_handle_dash()
-	_handle_movement(delta)
-	_handle_attack()
-	move_and_slide()
-	_update_facing()
+	if is_local:
+		if not is_alive:
+			return
+		dash.update(delta)
+		_apply_gravity(delta)
+		_gather_input()
+		_handle_jump()
+		_handle_dash()
+		_handle_movement(delta)
+		_handle_attack()
+		move_and_slide()
+		_update_facing()
+		SyncPos = global_position
+	else:
+		global_position = global_position.lerp(SyncPos, 10 * delta)
 	
 func _gather_input() -> void:
 	input_dir = Input.get_axis("ui_left", "ui_right")
@@ -105,7 +113,6 @@ func _handle_movement(delta: float) -> void:
 	if dash.is_dashing:
 		return
 	velocity.x = move_toward(velocity.x, input_dir * move_speed, move_speed * delta * 12.0)
-	# set facing direction here sprite.flip_h = direction
 
 func _handle_attack() -> void:
 	if _atk_req:
