@@ -13,6 +13,7 @@ var botinis_peer_ids: Array = []
 @onready var combat_manager:        CombatManager = $CombatManager
 @onready var match_manager:         MatchManager = $MatchManager
 @onready var player_manager:        PlayerManager = $PlayerManager
+@onready var player_netcode:        PlayerNetcode = $PlayerNetcode
 @onready var spawn_points:          Array  = $SpawnPoints.get_children()
 @onready var _countdown_label:      Label  = $UI/CountdownLabel
 @onready var start_button:          Button = $UI/StartButton
@@ -22,6 +23,7 @@ var botinis_peer_ids: Array = []
 func _ready() -> void:
 	add_to_group("game")
 	player_manager.setup(players_container, spawn_points)
+	player_netcode.setup(player_manager)
 	match_manager.setup(player_manager.players)
 	combat_manager.players = player_manager.players
 	combat_manager.projectiles_container = $Projectiles

@@ -1,0 +1,64 @@
+PR #15 Review Check
+Status: found
+Total bot comments: 4
+Action required: 2
+Suggestions: 2
+
+--- Comment 1 ---
+User: gemini-code-assist[bot]
+Type: review_comment
+File: scripts/players/player_manager.gd:None
+URL: https://github.com/robin-jack/botesitos/pull/15#discussion_r3249133916
+Body:
+![high](https://www.gstatic.com/codereviewagent/high-priority.svg)
+
+The current implementation only collects nodes present in the `players` dictionary. However, nodes that are already being despawned (e.g., via `despawn_eliminated_player`) are removed from this dictionary but remain in the scene tree for two frames. If `spawn_round_players` is called during this window, it will encounter name collisions because the old nodes are still in the container. 
+
+Additionally, the helpful comment regarding `_connected_peers` was removed and should be restored for maintainability.
+
+```
+	var nodes_to_free: Array = _players_container.get_children()
+	players.clear()
+	# NOTE: _connected_peers is intentionally NOT cleared here;
+	# connection state survives round transitions.
+```
+
+--- Comment 2 ---
+User: gemini-code-assist[bot]
+Type: review_comment
+File: scripts/players/player_manager.gd:None
+URL: https://github.com/robin-jack/botesitos/pull/15#discussion_r3249133922
+Body:
+![high](https://www.gstatic.com/codereviewagent/high-priority.svg)
+
+Using `queue_free.call_deferred()` (or `call_deferred("queue_free")`) means the node is not removed from the scene tree until at least the end of the current frame. Since `spawn_round_players` continues immediately after this `await`, it will attempt to add new nodes with the same names (peer IDs) while the old nodes are still present in the tree, causing Godot to rename the new nodes (e.g., to `"123@2"`). This breaks multiplayer synchronization. 
+
+Use `remove_child()` before `queue_free()` to ensure the node name is immediately available for reuse in the same frame.
+
+```
+	for node in nodes_to_free:
+		if is_instance_valid(node):
+			if node.get_parent():
+				node.get_parent().remove_child(node)
+			node.queue_free()
+```
+
+--- Comment 3 ---
+User: gemini-code-assist[bot]
+Type: review_comment
+File: scripts/players/player_manager.gd:134
+URL: https://github.com/robin-jack/botesitos/pull/15#discussion_r3249133926
+Body:
+![medium](https://www.gstatic.com/codereviewagent/medium-priority.svg)
+
+The `prepare_for_despawn` method is missing from `scenes/characters/player.gd` (used for the Boss). While the `has_method` check prevents a crash, the Boss node will not be properly hidden or frozen during the two-frame transition period, which may lead to visual artifacts or physics interactions after the round ends.
+
+--- Comment 4 ---
+User: gemini-code-assist[bot]
+Type: review
+URL: https://github.com/robin-jack/botesitos/pull/15#pullrequestreview-4299213345
+Body:
+## Code Review
+
+This pull request introduces an asynchronous player cleanup process via clear_players_for_replacement to ensure nodes are properly despawned before a new round begins. Feedback focuses on preventing name collisions by iterating over all container children instead of just the players dictionary and using remove_child() before queue_free() to ensure immediate name availability for multiplayer synchronization. Additionally, the Boss character needs to implement prepare_for_despawn to avoid artifacts during the transition, and a previously removed comment regarding _connected_peers should be restored for maintainability.
+

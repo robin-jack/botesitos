@@ -12,6 +12,9 @@ var players: Dictionary = {}
 ## peer_id -> bool (connected status)
 var _connected_peers: Dictionary = {}
 
+## peer_id -> generation counter (increments on each spawn/respawn)
+var player_generations: Dictionary = {}
+
 var _players_container: Node2D
 var _spawn_points: Array
 
@@ -25,11 +28,14 @@ func spawn_warmup_player(pid: int, player_info: Dictionary) -> void:
 	if players.has(pid):
 		return
 
-	var player := BOTINI_SCENE.instantiate() as CharacterBody2D
-	player.peer_id     = pid
-	player.team        = pid
-	player.player_name = player_info.get("name", "Player %d" % pid)
-	player.name        = str(pid)
+	player_generations[pid] = player_generations.get(pid, 0) + 1
+
+	var player := BOTINI_SCENE.instantiate() as Player
+	player.peer_id           = pid
+	player.team              = pid
+	player.player_name       = player_info.get("name", "Player %d" % pid)
+	player.name              = str(pid)
+	player.spawn_generation  = player_generations[pid]
 
 	players[pid] = player
 	_connected_peers[pid] = true
@@ -47,6 +53,8 @@ func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_pe
 
 	var botini_idx := 0
 	for pid: int in player_infos:
+		player_generations[pid] = player_generations.get(pid, 0) + 1
+
 		var is_boss := (pid == boss_peer_id)
 		var player: Player
 
@@ -59,7 +67,8 @@ func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_pe
 			player.peer_id      = pid
 			player.player_name  = player_infos[pid].get("name", "Botini %d" % pid)
 
-		player.name = str(pid)
+		player.name             = str(pid)
+		player.spawn_generation = player_generations[pid]
 		var sp: Node2D
 		if is_boss:
 			sp = _spawn_points[randi() % _spawn_points.size()]

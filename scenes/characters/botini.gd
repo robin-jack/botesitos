@@ -7,18 +7,19 @@ const COYOTE_TIME_MAX = 0.12 # seconds
 
 enum TEAM { BOTINI, BOTATO }
 
-# Replicated state 
 var facing_dir: bool = true:
 	set(value):
 		facing_dir = value
 		if is_inside_tree() and animation:
 			animation.flip_h = not value
 var is_alive: bool = true
+var spawn_generation: int = 0
 
 # Set by game.gd before add_child
 @export var team: TEAM
 var peer_id: int = 1
 var player_name: String = "Player"
+var is_local: bool
 
 # Stats
 var max_health: int = 10
@@ -45,7 +46,6 @@ var _game: Node2D
 @onready var shoot_sound = $ShootSound
 @onready var camera = $Camera2D
 
-
 func _enter_tree() -> void:
 	peer_id = int(name)
 	set_multiplayer_authority(peer_id)
@@ -55,11 +55,12 @@ func _ready() -> void:
 	attack.attack_executed.connect(_on_attack_executed)
 	_game = get_tree().get_first_node_in_group("game")
 
-	var is_local: bool = is_multiplayer_authority()
-	set_physics_process(is_local)
+	is_local = is_multiplayer_authority()
 	camera.enabled = is_local
 	
 func _physics_process(delta: float) -> void:
+	if not is_local:
+		return
 	if not is_alive:
 		return
 	dash.update(delta)
@@ -105,7 +106,6 @@ func _handle_movement(delta: float) -> void:
 	if dash.is_dashing:
 		return
 	velocity.x = move_toward(velocity.x, input_dir * move_speed, move_speed * delta * 12.0)
-	# set facing direction here sprite.flip_h = direction
 
 func _handle_attack() -> void:
 	if _atk_req:
@@ -165,9 +165,6 @@ func prepare_for_despawn() -> void:
 	set_physics_process(false)
 	if camera:
 		camera.enabled = false
-	var sync := get_node_or_null("MultiplayerSynchronizer") as MultiplayerSynchronizer
-	if sync:
-		sync.public_visibility = false
 
 # --- Internal call-backs ---
 
