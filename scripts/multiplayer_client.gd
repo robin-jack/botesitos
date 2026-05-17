@@ -19,7 +19,7 @@ enum PlayerType { NONE, BOTINI, BOSS }
 			player.queue_free()
 		player = value
 		if is_instance_valid(player):
-			add_child(player)
+			add_child.call_deferred(player)
 			player_spawned.emit(player)
 
 @export var player_type: PlayerType = PlayerType.NONE:
@@ -68,6 +68,11 @@ func _update_player_scene() -> void:
 			p.name = "Player"
 			p.position = spawn_position
 			self.player = p
+
+@rpc("authority", "call_local", "reliable")
+func configure_player(type: PlayerType, pos: Vector2) -> void:
+	spawn_position = pos
+	player_type = type
 
 @rpc("any_peer", "call_local", "reliable")
 func receive_damage(amount: int, direction: Vector2, knockback: float) -> void:

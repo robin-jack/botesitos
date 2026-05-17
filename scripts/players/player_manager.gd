@@ -55,8 +55,8 @@ func spawn_warmup_player(pid: int, player_info: Dictionary) -> void:
 		return
 
 	var sp: Node2D = _spawn_points[randi() % _spawn_points.size()]
-	client.spawn_position = sp.global_position - _players_container.global_position
-	client.player_type = MultiplayerClient.PlayerType.BOTINI
+	var pos := sp.global_position - _players_container.global_position
+	client.configure_player.rpc(MultiplayerClient.PlayerType.BOTINI, pos)
 
 
 func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_peer_ids: Array) -> void:
@@ -73,8 +73,9 @@ func spawn_round_players(player_infos: Dictionary, boss_peer_id: int, botinis_pe
 		else:
 			sp = _spawn_points[botini_idx % _spawn_points.size()]
 			botini_idx += 1
-		client.spawn_position = sp.global_position - _players_container.global_position
-		client.player_type = MultiplayerClient.PlayerType.BOSS if is_boss else MultiplayerClient.PlayerType.BOTINI
+		var pos := sp.global_position - _players_container.global_position
+		var pt := MultiplayerClient.PlayerType.BOSS if is_boss else MultiplayerClient.PlayerType.BOTINI
+		client.configure_player.rpc(pt, pos)
 
 
 func respawn_warmup_player(pid: int) -> void:
@@ -99,7 +100,7 @@ func despawn_eliminated_player(pid: int) -> void:
 	if clients.has(pid):
 		var c: MultiplayerClient = clients[pid]
 		if is_instance_valid(c):
-			c.player_type = MultiplayerClient.PlayerType.NONE
+			c.configure_player.rpc(MultiplayerClient.PlayerType.NONE, Vector2.ZERO)
 
 
 func mark_player_disconnected(pid: int) -> void:
@@ -138,7 +139,7 @@ func clear_players() -> void:
 	for pid: int in clients:
 		var client: MultiplayerClient = clients[pid]
 		if is_instance_valid(client):
-			client.player_type = MultiplayerClient.PlayerType.NONE
+			client.configure_player.rpc(MultiplayerClient.PlayerType.NONE, Vector2.ZERO)
 
 	players.clear()
 	# NOTE: _connected_peers and clients are intentionally NOT cleared here;
